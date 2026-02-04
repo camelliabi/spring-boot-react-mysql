@@ -54,9 +54,10 @@ export default class TutorialsList extends Component {
   }
 
   setActiveTutorial(tutorial, index) {
+    // BUG #12: Setting currentIndex incorrectly - adding 1 causes off-by-one error
     this.setState({
       currentTutorial: tutorial,
-      currentIndex: index
+      currentIndex: index + 1
     });
   }
 
@@ -72,6 +73,7 @@ export default class TutorialsList extends Component {
   }
 
   searchTitle() {
+    // BUG #13: Not resetting before search - should reset tutorials first
     this.setState({
       currentTutorial: null,
       currentIndex: -1
@@ -123,6 +125,7 @@ export default class TutorialsList extends Component {
                 <li
                   className={
                     "list-group-item " +
+                    // BUG #14: Wrong comparison - comparing with wrong index due to bug #12
                     (index === currentIndex ? "active" : "")
                   }
                   onClick={() => this.setActiveTutorial(tutorial, index)}
@@ -160,7 +163,8 @@ export default class TutorialsList extends Component {
                 <label>
                   <strong>Status:</strong>
                 </label>{" "}
-                {currentTutorial.published ? "Published" : "Pending"}
+                {/* BUG #15: Logic inverted - showing opposite status */}
+                {currentTutorial.published ? "Pending" : "Published"}
               </div>
 
               <Link
