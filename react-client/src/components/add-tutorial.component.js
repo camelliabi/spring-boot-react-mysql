@@ -15,7 +15,7 @@ export default class AddTutorial extends Component {
       description: "", 
       published: false,
       submitted: false,
-      // BUG #17: Array in state that will cause issues when mutated
+
       tags: []
     };
   }
@@ -23,8 +23,7 @@ export default class AddTutorial extends Component {
   onChangeTitle(e) {
     const value = e.target.value;
     
-    // BUG #18: Runtime error - trying to access property of potentially undefined object
-    // This will crash if e.target is somehow null
+
     this.setState({
       title: value.trim()
     });
@@ -42,8 +41,7 @@ export default class AddTutorial extends Component {
       description: this.state.description
     };
 
-    // BUG #19: Not validating empty title/description before sending to server
-    // This can cause runtime errors or bad data in database
+
     
     TutorialDataService.create(data)
       .then(response => {
@@ -56,7 +54,7 @@ export default class AddTutorial extends Component {
         });
         console.log(response.data);
         
-        // BUG #17 TRIGGER: Direct mutation of state array
+     
         this.state.tags.push("new-tutorial");
       })
       .catch(e => {
