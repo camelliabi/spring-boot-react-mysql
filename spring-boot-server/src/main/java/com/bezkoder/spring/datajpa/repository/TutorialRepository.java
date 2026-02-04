@@ -12,8 +12,6 @@ public interface TutorialRepository extends JpaRepository<Tutorial, Long> {
 	List<Tutorial> findByPublished(boolean published);
 	List<Tutorial> findByTitleContaining(String title);
 	
-	// BUG #18: Custom query with incorrect JPQL - using wrong operator
-	// This will cause runtime errors when executed
 	@Query("SELECT t FROM Tutorial t WHERE t.title = :title")
 	List<Tutorial> findByTitleContaining(@Param("title") String title, @Param("published") boolean published);
 }
