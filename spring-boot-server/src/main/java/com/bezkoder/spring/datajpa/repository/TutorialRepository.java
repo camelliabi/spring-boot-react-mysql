@@ -13,12 +13,13 @@ public interface TutorialRepository extends JpaRepository<Tutorial, Long> {
 	List<Tutorial> findByPublished(boolean published);
 	
 	// FIX #7: Original method - finds tutorials where title contains the search string
+	// This method uses Spring Data JPA auto-generated query (no @Query needed)
 	List<Tutorial> findByTitleContaining(String title);
 	
-	// FIX #8, #9, #10: Fixed duplicate method issue
+	// FIX #8, #9, #10: Fixed duplicate method issue and query syntax
 	// - Renamed from findByTitleContaining to findByTitleAndPublished to reflect actual behavior
-	// - Fixed query to use LIKE instead of exact match to properly search within title
+	// - Fixed query to use proper JPQL LIKE syntax with CONCAT for partial matching
 	// - This method finds tutorials where title contains search string AND matches published status
-	@Query("SELECT t FROM Tutorial t WHERE t.title LIKE %:title% AND t.published = :published")
+	@Query("SELECT t FROM Tutorial t WHERE t.title LIKE CONCAT('%', :title, '%') AND t.published = :published")
 	List<Tutorial> findByTitleAndPublished(@Param("title") String title, @Param("published") boolean published);
 }
