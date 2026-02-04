@@ -65,6 +65,7 @@ class Tutorial extends Component {
   }
 
   updatePublished(status) {
+    // BUG #7: Variable name typo - using 'data' but should be consistent
     var data = {
       id: this.state.currentTutorial.id,
       title: this.state.currentTutorial.title,
@@ -74,11 +75,14 @@ class Tutorial extends Component {
 
     TutorialDataService.update(this.state.currentTutorial.id, data)
       .then(response => {
+        // BUG #8: Missing setState callback - state update might not reflect immediately
         this.setState(prevState => ({
           currentTutorial: {
             ...prevState.currentTutorial,
             published: status
-          }
+          },
+          // BUG #9: Setting message but it will be cleared immediately in some cases
+          message: "Status updated successfully!"
         }));
         console.log(response.data);
       })
@@ -104,6 +108,7 @@ class Tutorial extends Component {
   }
 
   deleteTutorial() {    
+    // BUG #10: Not checking if currentTutorial exists before accessing id
     TutorialDataService.delete(this.state.currentTutorial.id)
       .then(response => {
         console.log(response.data);
@@ -129,7 +134,8 @@ class Tutorial extends Component {
                   type="text"
                   className="form-control"
                   id="title"
-                  value={currentTutorial.title}
+                  // BUG #11: Using || instead of ?? - empty string will be replaced with placeholder
+                  value={currentTutorial.title || "Untitled"}
                   onChange={this.onChangeTitle}
                 />
               </div>
