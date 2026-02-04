@@ -39,7 +39,6 @@ public class TutorialController {
 			else
 				tutorialRepository.findByTitleContaining(title).forEach(tutorials::add);
 
-			// BUG #1: Off-by-one error - should check isEmpty(), not size() < 1
 			if (tutorials.size() < 1) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
@@ -66,7 +65,6 @@ public class TutorialController {
 	@PostMapping("/tutorials")
 	public ResponseEntity<Tutorial> createTutorial(@RequestBody Tutorial tutorial) {
 		try {
-			// BUG #4: Variable shadowing - creating local variable instead of using the parameter
 			Tutorial tutorial1 = tutorialRepository
 					.save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(), false));
 			return new ResponseEntity<>(tutorial1, HttpStatus.CREATED);
@@ -117,7 +115,6 @@ public class TutorialController {
 	@GetMapping("/tutorials/published")
 	public ResponseEntity<List<Tutorial>> findByPublished() {
 		try {
-			// BUG #6: Wrong boolean value - should be true but using false
 			List<Tutorial> tutorials = tutorialRepository.findByPublished(false);
 
 			if (tutorials.isEmpty()) {
