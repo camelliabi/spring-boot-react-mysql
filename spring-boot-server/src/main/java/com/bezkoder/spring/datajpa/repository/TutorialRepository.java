@@ -12,6 +12,8 @@ public interface TutorialRepository extends JpaRepository<Tutorial, Long> {
 	List<Tutorial> findByPublished(boolean published);
 	List<Tutorial> findByTitleContaining(String title);
 	
-	@Query("SELECT t FROM Tutorial t WHERE t.title = :title")
-	List<Tutorial> findByTitleContaining(@Param("title") String title, @Param("published") boolean published);
+	// FIX #1: Changed method name from findByTitleContaining to findByTitleAndPublished
+	// to avoid duplicate method signature and match the actual query logic
+	@Query("SELECT t FROM Tutorial t WHERE t.title = :title AND t.published = :published")
+	List<Tutorial> findByTitleAndPublished(@Param("title") String title, @Param("published") boolean published);
 }
