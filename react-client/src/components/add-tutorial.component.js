@@ -14,18 +14,16 @@ export default class AddTutorial extends Component {
       title: "",
       description: "", 
       published: false,
-      submitted: false,
-
-      tags: []
+      submitted: false
     };
   }
 
   onChangeTitle(e) {
-    const value = e.target.value;
-    
-
+    // FIX: Removed trim() to preserve user input exactly as typed
+    // Previous bug: trim() made it impossible to type leading/trailing spaces during editing
+    // Trimming should happen on save, not during input
     this.setState({
-      title: value.trim()
+      title: e.target.value
     });
   }
 
@@ -36,13 +34,13 @@ export default class AddTutorial extends Component {
   }
 
   saveTutorial() {
+    // FIX: Trim title and description on save to prevent empty submissions
+    // This allows user to type spaces during editing but ensures clean data is saved
     var data = {
-      title: this.state.title,
-      description: this.state.description
+      title: this.state.title.trim(),
+      description: this.state.description.trim()
     };
 
-
-    
     TutorialDataService.create(data)
       .then(response => {
         this.setState({
@@ -53,9 +51,6 @@ export default class AddTutorial extends Component {
           submitted: true
         });
         console.log(response.data);
-        
-     
-        this.state.tags.push("new-tutorial");
       })
       .catch(e => {
         console.log(e);
@@ -68,8 +63,7 @@ export default class AddTutorial extends Component {
       title: "",
       description: "",
       published: false,
-      submitted: false,
-      tags: []
+      submitted: false
     });
   }
 
