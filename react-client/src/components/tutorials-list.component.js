@@ -54,10 +54,18 @@ export default class TutorialsList extends Component {
   }
 
   setActiveTutorial(tutorial, index) {
-
+    // FIX #5: Removed the +1 offset that caused off-by-one highlighting error
+    // ISSUE: currentIndex was set to index + 1 instead of index
+    // ORIGINAL CODE: currentIndex: index + 1
+    // PROBLEM: When user clicked the first item (index 0), currentIndex became 1
+    //          The comparison (index === currentIndex) in render would be:
+    //          - Item 0: (0 === 1) = false, not highlighted
+    //          - Item 1: (1 === 1) = true, WRONG item highlighted!
+    // SOLUTION: Set currentIndex to the actual index clicked
+    // IMPACT: Clicking a tutorial now correctly highlights THAT tutorial in the list
     this.setState({
       currentTutorial: tutorial,
-      currentIndex: index + 1
+      currentIndex: index
     });
   }
 
@@ -163,8 +171,16 @@ export default class TutorialsList extends Component {
                 <label>
                   <strong>Status:</strong>
                 </label>{" "}
-              
-                {currentTutorial.published ? "Pending" : "Published"}
+                {/* FIX #6: Corrected inverted ternary logic for status display */}
+                {/* ISSUE: Status displayed backwards - "Pending" when published=true */}
+                {/* ORIGINAL CODE: {currentTutorial.published ? "Pending" : "Published"} */}
+                {/* PROBLEM: */}
+                {/*   - When published === true  => showed "Pending"   (WRONG!) */}
+                {/*   - When published === false => showed "Published" (WRONG!) */}
+                {/* SOLUTION: Swap the ternary values */}
+                {/* IMPACT: Published tutorials now correctly show "Published" status */}
+                {/*         Unpublished tutorials now correctly show "Pending" status */}
+                {currentTutorial.published ? "Published" : "Pending"}
               </div>
 
               <Link
