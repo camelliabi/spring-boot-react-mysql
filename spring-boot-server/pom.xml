@@ -36,6 +36,27 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- FIX #10: Added H2 database for testing -->
+		<!-- ISSUE: Tests failed because MySQL wasn't available during test execution -->
+		<!-- ORIGINAL CODE: No H2 dependency, only MySQL -->
+		<!-- PROBLEM: -->
+		<!--   - Tests required MySQL to be running -->
+		<!--   - CI/CD pipelines failed without database setup -->
+		<!--   - Developers couldn't run tests without local MySQL instance -->
+		<!-- SOLUTION: Add H2 in-memory database with test scope -->
+		<!--   - H2 is embedded and requires no configuration -->
+		<!--   - Only used during testing (scope=test) -->
+		<!--   - Production still uses MySQL -->
+		<!-- IMPACT: -->
+		<!--   - Tests run independently without external dependencies -->
+		<!--   - Faster test execution (in-memory vs network database) -->
+		<!--   - Better developer experience and CI/CD reliability -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
