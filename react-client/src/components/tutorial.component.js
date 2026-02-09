@@ -134,8 +134,16 @@ class Tutorial extends Component {
                   type="text"
                   className="form-control"
                   id="title"
-                
-                  value={currentTutorial.title || "Untitled"}
+                  {/* FIX #9: Removed hardcoded "Untitled" fallback */}
+                  {/* ISSUE: value={currentTutorial.title || "Untitled"} forces "Untitled" when title is empty */}
+                  {/* ORIGINAL CODE: value={currentTutorial.title || "Untitled"} */}
+                  {/* PROBLEM: */}
+                  {/*   - User deletes all text → input shows "Untitled" instead of being empty */}
+                  {/*   - Users cannot clear the title field completely */}
+                  {/*   - Fallback overrides user's intention to have empty title */}
+                  {/* SOLUTION: Use empty string fallback: value={currentTutorial.title || ""} */}
+                  {/* IMPACT: Users can now clear the title field and start fresh with natural editing experience */}
+                  value={currentTutorial.title || ""}
                   onChange={this.onChangeTitle}
                 />
               </div>

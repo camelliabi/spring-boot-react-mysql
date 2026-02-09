@@ -51,13 +51,11 @@ public class TutorialController {
 
 	@GetMapping("/tutorials/{id}")
 	public ResponseEntity<Tutorial> getTutorialById(@PathVariable("id") long id) {
-		// BUG #2: Logic error - checking if present but returning NOT_FOUND when present
 		Optional<Tutorial> tutorialData = tutorialRepository.findById(id);
 
 		if (tutorialData.isPresent()) {
 			return new ResponseEntity<>(tutorialData.get(), HttpStatus.OK);
 		} else {
-			// BUG #3: Missing return statement will cause compilation issues in some edge cases
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
@@ -65,9 +63,9 @@ public class TutorialController {
 	@PostMapping("/tutorials")
 	public ResponseEntity<Tutorial> createTutorial(@RequestBody Tutorial tutorial) {
 		try {
-			Tutorial tutorial1 = tutorialRepository
+			Tutorial _tutorial = tutorialRepository
 					.save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(), false));
-			return new ResponseEntity<>(tutorial1, HttpStatus.CREATED);
+			return new ResponseEntity<>(_tutorial, HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -81,10 +79,20 @@ public class TutorialController {
 			Tutorial _tutorial = tutorialData.get();
 			_tutorial.setTitle(tutorial.getTitle());
 			_tutorial.setDescription(tutorial.getDescription());
-			// BUG #5: Incorrect boolean comparison - using == instead of proper boolean handling
-			if (tutorial.isPublished() == true) {
-				_tutorial.setPublished(tutorial.isPublished());
-			}
+			
+			// FIX #3: Removed redundant boolean comparison (== true)
+			// ISSUE: if (tutorial.isPublished() == true) only updated when true
+			//        This prevented users from UNPUBLISHING tutorials (setting to false)
+			// ORIGINAL CODE:
+			//   if (tutorial.isPublished() == true) {
+			//       _tutorial.setPublished(tutorial.isPublished());
+			//   }
+			// PROBLEM: When published=false in request, the if condition was false,
+			//          so setPublished() was never called, leaving it published
+			// SOLUTION: Always update published status from request body
+			// IMPACT: Users can now toggle published status in BOTH directions
+			_tutorial.setPublished(tutorial.isPublished());
+			
 			return new ResponseEntity<>(tutorialRepository.save(_tutorial), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -115,7 +123,14 @@ public class TutorialController {
 	@GetMapping("/tutorials/published")
 	public ResponseEntity<List<Tutorial>> findByPublished() {
 		try {
-			List<Tutorial> tutorials = tutorialRepository.findByPublished(false);
+			// FIX #4: Changed from findByPublished(false) to findByPublished(true)
+			// ISSUE: Endpoint URL is "/tutorials/published" but was querying for UNPUBLISHED (false)
+			// ORIGINAL CODE: tutorialRepository.findByPublished(false)
+			// PROBLEM: Returned the OPPOSITE of what the endpoint name suggests
+			//          Users calling /api/tutorials/published got unpublished tutorials!
+			// SOLUTION: Pass true to get actually published tutorials
+			// IMPACT: API endpoint now returns correct data matching its purpose
+			List<Tutorial> tutorials = tutorialRepository.findByPublished(true);
 
 			if (tutorials.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);

@@ -14,18 +14,22 @@ export default class AddTutorial extends Component {
       title: "",
       description: "", 
       published: false,
-      submitted: false,
-
-      tags: []
+      submitted: false
     };
   }
 
   onChangeTitle(e) {
-    const value = e.target.value;
-    
-
+    // FIX #7: Removed trim() from input handler
+    // ISSUE: Calling trim() on every keystroke removed leading/trailing spaces immediately
+    // ORIGINAL CODE: title: e.target.value.trim()
+    // PROBLEM:
+    //   - User types " Hello" → trim() makes it "Hello" → cursor position breaks
+    //   - Users cannot start with spaces or have trailing spaces while typing
+    //   - Causes poor UX as input value changes unexpectedly during typing
+    // SOLUTION: Store the raw value; trim only when saving (see saveTutorial)
+    // IMPACT: Natural typing experience; validation happens at submit time, not during input
     this.setState({
-      title: value.trim()
+      title: e.target.value
     });
   }
 
@@ -36,13 +40,12 @@ export default class AddTutorial extends Component {
   }
 
   saveTutorial() {
+    // Trim values when saving, not during input
     var data = {
-      title: this.state.title,
-      description: this.state.description
+      title: this.state.title.trim(),
+      description: this.state.description.trim()
     };
 
-
-    
     TutorialDataService.create(data)
       .then(response => {
         this.setState({
@@ -54,8 +57,18 @@ export default class AddTutorial extends Component {
         });
         console.log(response.data);
         
-     
-        this.state.tags.push("new-tutorial");
+        // FIX #8: Removed direct state mutation
+        // ISSUE: this.state.tags.push("new-tutorial") directly mutates state
+        // ORIGINAL CODE: this.state.tags.push("new-tutorial");
+        // PROBLEM:
+        //   - Violates React's principle: never mutate state directly
+        //   - Can cause unpredictable rendering behavior
+        //   - React may not detect the change, skipping re-renders
+        //   - Creates hard-to-debug issues in complex components
+        // SOLUTION: Removed unused tags property entirely (it wasn't used anywhere)
+        // IMPACT: Follows React best practices; ensures reliable state updates
+        // Note: If tags were needed, proper solution would be:
+        //       this.setState({ tags: [...this.state.tags, "new-tutorial"] });
       })
       .catch(e => {
         console.log(e);
@@ -68,8 +81,7 @@ export default class AddTutorial extends Component {
       title: "",
       description: "",
       published: false,
-      submitted: false,
-      tags: []
+      submitted: false
     });
   }
 

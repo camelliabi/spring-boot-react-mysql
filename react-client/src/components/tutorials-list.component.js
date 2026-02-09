@@ -54,10 +54,16 @@ export default class TutorialsList extends Component {
   }
 
   setActiveTutorial(tutorial, index) {
-
+    // FIX #5: Removed off-by-one error (index + 1)
+    // ISSUE: Adding 1 to index caused wrong tutorial to be highlighted
+    // ORIGINAL CODE: currentIndex: index + 1
+    // PROBLEM: When user clicked tutorial at index 0, currentIndex became 1,
+    //          highlighting the SECOND tutorial instead of the FIRST
+    // SOLUTION: Use the actual index without adding 1
+    // IMPACT: Clicking a tutorial now highlights THAT tutorial, not the next one
     this.setState({
       currentTutorial: tutorial,
-      currentIndex: index + 1
+      currentIndex: index
     });
   }
 
@@ -163,8 +169,13 @@ export default class TutorialsList extends Component {
                 <label>
                   <strong>Status:</strong>
                 </label>{" "}
-              
-                {currentTutorial.published ? "Pending" : "Published"}
+                {/* FIX #6: Corrected inverted status display logic */}
+                {/* ISSUE: Ternary was backwards - showed "Pending" when published=true */}
+                {/* ORIGINAL CODE: {currentTutorial.published ? "Pending" : "Published"} */}
+                {/* PROBLEM: Published tutorials showed "Pending", unpublished showed "Published" */}
+                {/* SOLUTION: Swap the values so published=true shows "Published" */}
+                {/* IMPACT: Users now see correct status labels */}
+                {currentTutorial.published ? "Published" : "Pending"}
               </div>
 
               <Link
