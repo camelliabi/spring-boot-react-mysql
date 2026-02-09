@@ -36,6 +36,15 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- FIX: Added H2 in-memory database for testing -->
+		<!-- Previous issue: Tests failed without MySQL running -->
+		<!-- Solution: Use H2 for tests so they can run independently -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
