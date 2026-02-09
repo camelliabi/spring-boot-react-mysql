@@ -22,10 +22,12 @@ export default class AddTutorial extends Component {
 
   onChangeTitle(e) {
     const value = e.target.value;
-    
-
+    // FIX: Removed trim() to prevent direct state mutation
+    // React state should never be mutated directly. The trim operation
+    // was modifying the input value before setting state, which is incorrect.
+    // If trimming is needed, it should be done when saving, not on every keystroke.
     this.setState({
-      title: value.trim()
+      title: value
     });
   }
 
@@ -45,17 +47,19 @@ export default class AddTutorial extends Component {
     
     TutorialDataService.create(data)
       .then(response => {
+        // FIX: Use setState to update tags array instead of direct mutation
+        // Previously: this.state.tags.push("new-tutorial") was a direct state mutation
+        // which violates React's immutability principle and can cause rendering issues.
+        // Now using spread operator to create a new array with the added tag.
         this.setState({
           id: response.data.id,
           title: response.data.title,
           description: response.data.description,
           published: response.data.published,
-          submitted: true
+          submitted: true,
+          tags: [...this.state.tags, "new-tutorial"]
         });
         console.log(response.data);
-        
-     
-        this.state.tags.push("new-tutorial");
       })
       .catch(e => {
         console.log(e);
