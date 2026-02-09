@@ -21,11 +21,19 @@ export default class AddTutorial extends Component {
   }
 
   onChangeTitle(e) {
+    // FIX #7: Removed trim() that caused input lag and prevented spaces
+    // ISSUE: Calling trim() on every keystroke removed leading/trailing spaces immediately
+    // ORIGINAL CODE: title: value.trim()
+    // PROBLEM:
+    //   - User types " Hello" → trim() makes it "Hello" → cursor position breaks
+    //   - User can't start with spaces or have trailing spaces while typing
+    //   - Causes poor UX as input value changes unexpectedly during typing
+    // SOLUTION: Store the raw value; trim only when saving if needed
+    // IMPACT: Natural typing experience; validation happens at submit time, not during input
     const value = e.target.value;
-    
 
     this.setState({
-      title: value.trim()
+      title: value
     });
   }
 
@@ -36,8 +44,9 @@ export default class AddTutorial extends Component {
   }
 
   saveTutorial() {
+    // Trim title before saving to remove accidental whitespace
     var data = {
-      title: this.state.title,
+      title: this.state.title.trim(),
       description: this.state.description
     };
 
@@ -45,17 +54,25 @@ export default class AddTutorial extends Component {
     
     TutorialDataService.create(data)
       .then(response => {
+        // FIX #8: Replaced direct state mutation with proper setState for tags
+        // ISSUE: this.state.tags.push("new-tutorial") directly mutates state
+        // ORIGINAL CODE: this.state.tags.push("new-tutorial");
+        // PROBLEM:
+        //   - Violates React's principle: never mutate state directly
+        //   - Can cause unpredictable rendering behavior
+        //   - React may not detect the change, skipping re-renders
+        //   - Creates hard-to-debug issues in complex components
+        // SOLUTION: Use setState with spread operator to create new array
+        // IMPACT: Follows React best practices; ensures reliable state updates
         this.setState({
           id: response.data.id,
           title: response.data.title,
           description: response.data.description,
           published: response.data.published,
-          submitted: true
+          submitted: true,
+          tags: [...this.state.tags, "new-tutorial"]
         });
         console.log(response.data);
-        
-     
-        this.state.tags.push("new-tutorial");
       })
       .catch(e => {
         console.log(e);
