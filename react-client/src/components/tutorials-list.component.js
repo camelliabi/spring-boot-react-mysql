@@ -54,10 +54,13 @@ export default class TutorialsList extends Component {
   }
 
   setActiveTutorial(tutorial, index) {
-
+    // FIX #5: Removed incorrect index + 1 calculation
+    // The index should be used directly to properly highlight the active tutorial
+    // Previous code: currentIndex: index + 1 caused the wrong item to be highlighted
+    // When user clicked first item (index 0), second item (index 1) would be highlighted
     this.setState({
       currentTutorial: tutorial,
-      currentIndex: index + 1
+      currentIndex: index
     });
   }
 
@@ -73,7 +76,6 @@ export default class TutorialsList extends Component {
   }
 
   searchTitle() {
-   
     this.setState({
       currentTutorial: null,
       currentIndex: -1
@@ -125,7 +127,6 @@ export default class TutorialsList extends Component {
                 <li
                   className={
                     "list-group-item " +
-                  
                     (index === currentIndex ? "active" : "")
                   }
                   onClick={() => this.setActiveTutorial(tutorial, index)}
@@ -163,8 +164,11 @@ export default class TutorialsList extends Component {
                 <label>
                   <strong>Status:</strong>
                 </label>{" "}
-              
-                {currentTutorial.published ? "Pending" : "Published"}
+                {/* FIX #4: Corrected inverted status display logic */}
+                {/* Previous code: {currentTutorial.published ? "Pending" : "Published"} */}
+                {/* This was backwards - showed "Pending" when published was true */}
+                {/* Now correctly shows "Published" when true and "Pending" when false */}
+                {currentTutorial.published ? "Published" : "Pending"}
               </div>
 
               <Link
