@@ -51,13 +51,11 @@ public class TutorialController {
 
 	@GetMapping("/tutorials/{id}")
 	public ResponseEntity<Tutorial> getTutorialById(@PathVariable("id") long id) {
-		// BUG #2: Logic error - checking if present but returning NOT_FOUND when present
 		Optional<Tutorial> tutorialData = tutorialRepository.findById(id);
 
 		if (tutorialData.isPresent()) {
 			return new ResponseEntity<>(tutorialData.get(), HttpStatus.OK);
 		} else {
-			// BUG #3: Missing return statement will cause compilation issues in some edge cases
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
@@ -81,10 +79,13 @@ public class TutorialController {
 			Tutorial _tutorial = tutorialData.get();
 			_tutorial.setTitle(tutorial.getTitle());
 			_tutorial.setDescription(tutorial.getDescription());
-			// BUG #5: Incorrect boolean comparison - using == instead of proper boolean handling
-			if (tutorial.isPublished() == true) {
-				_tutorial.setPublished(tutorial.isPublished());
-			}
+			
+			// FIX #2: Removed redundant boolean comparison
+			// Always update published status from request body
+			// Previous code: if (tutorial.isPublished() == true) - redundant comparison
+			// The boolean comparison using == true is unnecessary and considered a code smell
+			_tutorial.setPublished(tutorial.isPublished());
+			
 			return new ResponseEntity<>(tutorialRepository.save(_tutorial), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -115,7 +116,9 @@ public class TutorialController {
 	@GetMapping("/tutorials/published")
 	public ResponseEntity<List<Tutorial>> findByPublished() {
 		try {
-			List<Tutorial> tutorials = tutorialRepository.findByPublished(false);
+			// FIX #3: Changed from false to true - endpoint should return published tutorials, not unpublished ones
+			// This was a critical logic error where the API was returning the opposite of what was expected
+			List<Tutorial> tutorials = tutorialRepository.findByPublished(true);
 
 			if (tutorials.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
