@@ -54,8 +54,14 @@ export default class AddTutorial extends Component {
         });
         console.log(response.data);
         
-     
-        this.state.tags.push("new-tutorial");
+        // FIX #2: Fixed direct state mutation - React anti-pattern
+        // Previous code: this.state.tags.push("new-tutorial");
+        // Never mutate state directly! Always use setState()
+        // Direct mutation bypasses React's state management and can cause bugs
+        // This properly creates a new array with the added tag
+        this.setState(prevState => ({
+          tags: [...prevState.tags, "new-tutorial"]
+        }));
       })
       .catch(e => {
         console.log(e);
