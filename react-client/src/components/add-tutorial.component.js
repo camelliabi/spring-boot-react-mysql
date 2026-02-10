@@ -45,17 +45,18 @@ export default class AddTutorial extends Component {
     
     TutorialDataService.create(data)
       .then(response => {
+        // FIX #7: Fixed direct state mutation
+        // Changed from this.state.tags.push() to using setState with spread operator
+        // Direct state mutations violate React principles and can cause rendering bugs
         this.setState({
           id: response.data.id,
           title: response.data.title,
           description: response.data.description,
           published: response.data.published,
-          submitted: true
+          submitted: true,
+          tags: [...this.state.tags, "new-tutorial"]
         });
         console.log(response.data);
-        
-     
-        this.state.tags.push("new-tutorial");
       })
       .catch(e => {
         console.log(e);
