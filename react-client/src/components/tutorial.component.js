@@ -141,11 +141,15 @@ class Tutorial extends Component {
               </div>
               <div className="form-group">
                 <label htmlFor="description">Description</label>
+                {/* FIX ERROR #9: Added null check fallback for description.
+                    Changed from 'value={currentTutorial.description}' to include fallback.
+                    This prevents React warning about switching between controlled and
+                    uncontrolled components when description is null/undefined. */}
                 <input
                   type="text"
                   className="form-control"
                   id="description"
-                  value={currentTutorial.description}
+                  value={currentTutorial.description || ""}
                   onChange={this.onChangeDescription}
                 />
               </div>

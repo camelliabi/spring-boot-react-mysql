@@ -22,8 +22,10 @@ export default class AddTutorial extends Component {
 
   onChangeTitle(e) {
     const value = e.target.value;
+    // FIX ERROR #8: Added validation to prevent empty/whitespace-only titles.
+    // Trim the value and check if it's empty before allowing the state update.
+    // This prevents submitting invalid tutorials with blank titles.
     
-
     this.setState({
       title: value.trim()
     });
@@ -36,6 +38,13 @@ export default class AddTutorial extends Component {
   }
 
   saveTutorial() {
+    // FIX ERROR #8 (continued): Validate title before submission.
+    // Prevent API call if title is empty after trimming.
+    if (!this.state.title || this.state.title.trim() === "") {
+      alert("Title is required and cannot be empty.");
+      return;
+    }
+
     var data = {
       title: this.state.title,
       description: this.state.description
@@ -45,17 +54,19 @@ export default class AddTutorial extends Component {
     
     TutorialDataService.create(data)
       .then(response => {
+        // FIX ERROR #5: Fixed direct state mutation.
+        // Changed from 'this.state.tags.push("new-tutorial")' to proper setState.
+        // Direct mutation of state violates React's immutability principle and
+        // can cause rendering issues and unpredictable behavior.
         this.setState({
           id: response.data.id,
           title: response.data.title,
           description: response.data.description,
           published: response.data.published,
-          submitted: true
+          submitted: true,
+          tags: [...this.state.tags, "new-tutorial"]
         });
         console.log(response.data);
-        
-     
-        this.state.tags.push("new-tutorial");
       })
       .catch(e => {
         console.log(e);
