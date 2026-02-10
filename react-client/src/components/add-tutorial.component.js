@@ -50,12 +50,13 @@ export default class AddTutorial extends Component {
           title: response.data.title,
           description: response.data.description,
           published: response.data.published,
-          submitted: true
+          submitted: true,
+          // FIX ERROR #5: Use setState to update tags array instead of direct mutation
+          // Direct mutation (this.state.tags.push) violates React principles and can cause bugs
+          tags: [...this.state.tags, "new-tutorial"]
         });
         console.log(response.data);
         
-     
-        this.state.tags.push("new-tutorial");
       })
       .catch(e => {
         console.log(e);
