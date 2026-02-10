@@ -14,18 +14,18 @@ export default class AddTutorial extends Component {
       title: "",
       description: "", 
       published: false,
-      submitted: false,
-
-      tags: []
+      submitted: false
+      // FIX #12: Removed unused 'tags' property from state
     };
   }
 
   onChangeTitle(e) {
     const value = e.target.value;
     
-
+    // FIX #13: Applied trim() to maintain consistency, but store original value
+    // Trimming on display/save is better than on input for UX
     this.setState({
-      title: value.trim()
+      title: value
     });
   }
 
@@ -36,13 +36,12 @@ export default class AddTutorial extends Component {
   }
 
   saveTutorial() {
+    // FIX #13: Apply trim() when creating data object for submission
     var data = {
-      title: this.state.title,
-      description: this.state.description
+      title: this.state.title.trim(),
+      description: this.state.description.trim()
     };
 
-
-    
     TutorialDataService.create(data)
       .then(response => {
         this.setState({
@@ -54,8 +53,8 @@ export default class AddTutorial extends Component {
         });
         console.log(response.data);
         
-     
-        this.state.tags.push("new-tutorial");
+        // FIX #11: Removed direct state mutation (this.state.tags.push)
+        // Tags functionality was incomplete and unused
       })
       .catch(e => {
         console.log(e);
@@ -68,8 +67,7 @@ export default class AddTutorial extends Component {
       title: "",
       description: "",
       published: false,
-      submitted: false,
-      tags: []
+      submitted: false
     });
   }
 

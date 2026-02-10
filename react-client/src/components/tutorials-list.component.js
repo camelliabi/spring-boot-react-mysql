@@ -54,10 +54,10 @@ export default class TutorialsList extends Component {
   }
 
   setActiveTutorial(tutorial, index) {
-
+    // FIX #15: Removed incorrect +1 offset - index should be used directly
     this.setState({
       currentTutorial: tutorial,
-      currentIndex: index + 1
+      currentIndex: index
     });
   }
 
@@ -73,12 +73,7 @@ export default class TutorialsList extends Component {
   }
 
   searchTitle() {
-   
-    this.setState({
-      currentTutorial: null,
-      currentIndex: -1
-    });
-
+    // FIX #17: Removed unnecessary state reset - not needed for search operation
     TutorialDataService.findByTitle(this.state.searchTitle)
       .then(response => {
         this.setState({
@@ -125,7 +120,6 @@ export default class TutorialsList extends Component {
                 <li
                   className={
                     "list-group-item " +
-                  
                     (index === currentIndex ? "active" : "")
                   }
                   onClick={() => this.setActiveTutorial(tutorial, index)}
@@ -163,8 +157,8 @@ export default class TutorialsList extends Component {
                 <label>
                   <strong>Status:</strong>
                 </label>{" "}
-              
-                {currentTutorial.published ? "Pending" : "Published"}
+                {/* FIX #16: Corrected inverted status display - published=true shows Published */}
+                {currentTutorial.published ? "Published" : "Pending"}
               </div>
 
               <Link
