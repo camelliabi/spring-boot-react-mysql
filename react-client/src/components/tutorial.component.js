@@ -134,8 +134,13 @@ class Tutorial extends Component {
                   type="text"
                   className="form-control"
                   id="title"
-                
-                  value={currentTutorial.title || "Untitled"}
+                  {/* FIX #8: Removed incorrect default value "Untitled"
+                      Previous code used: value={currentTutorial.title || "Untitled"}
+                      This caused the input to show "Untitled" when title was empty
+                      which could confuse users and potentially save "Untitled" as the actual title
+                      Now using just currentTutorial.title to show empty string when no title exists
+                      This provides a cleaner user experience and prevents accidental data */}
+                  value={currentTutorial.title}
                   onChange={this.onChangeTitle}
                 />
               </div>

@@ -23,9 +23,13 @@ export default class AddTutorial extends Component {
   onChangeTitle(e) {
     const value = e.target.value;
     
-
+    // FIX #7: Removed unnecessary trim() on title input
+    // Previous code used: value.trim() which removed intentional leading/trailing spaces
+    // This prevented users from entering titles with spaces at the beginning or end
+    // Trimming should only be done on form submission if needed, not during input
+    // This allows users to type naturally without unexpected behavior
     this.setState({
-      title: value.trim()
+      title: value
     });
   }
 
@@ -54,8 +58,14 @@ export default class AddTutorial extends Component {
         });
         console.log(response.data);
         
-     
-        this.state.tags.push("new-tutorial");
+        // FIX #6: Fixed direct state mutation violation
+        // Previous code used: this.state.tags.push("new-tutorial")
+        // This directly mutates the state array, which violates React principles
+        // Direct state mutation can cause bugs and prevent proper re-rendering
+        // Now using setState with spread operator to create a new array
+        this.setState(prevState => ({
+          tags: [...prevState.tags, "new-tutorial"]
+        }));
       })
       .catch(e => {
         console.log(e);
