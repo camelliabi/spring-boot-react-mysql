@@ -15,7 +15,6 @@ export default class AddTutorial extends Component {
       description: "", 
       published: false,
       submitted: false,
-
       tags: []
     };
   }
@@ -23,9 +22,12 @@ export default class AddTutorial extends Component {
   onChangeTitle(e) {
     const value = e.target.value;
     
-
+    // FIX ERROR-007: Removed .trim() from title input handling
+    // Using trim() prevents users from typing spaces at the beginning or end of titles.
+    // This breaks UX as the cursor jumps and spaces are removed while typing.
+    // Trimming should only happen on form submission if needed, not during input.
     this.setState({
-      title: value.trim()
+      title: value
     });
   }
 
@@ -41,8 +43,6 @@ export default class AddTutorial extends Component {
       description: this.state.description
     };
 
-
-    
     TutorialDataService.create(data)
       .then(response => {
         this.setState({
@@ -54,8 +54,12 @@ export default class AddTutorial extends Component {
         });
         console.log(response.data);
         
-     
-        this.state.tags.push("new-tutorial");
+        // FIX ERROR-006: Changed from direct state mutation to setState
+        // this.state.tags.push() directly mutates state which is forbidden in React.
+        // This can cause unpredictable behavior and breaks React's change detection.
+        this.setState(prevState => ({
+          tags: [...prevState.tags, "new-tutorial"]
+        }));
       })
       .catch(e => {
         console.log(e);
