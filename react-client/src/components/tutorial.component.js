@@ -130,12 +130,12 @@ class Tutorial extends Component {
             <form>
               <div className="form-group">
                 <label htmlFor="title">Title</label>
+                {/* FIX #6: Removed || "Untitled" default value that prevented clearing the title field */}
                 <input
                   type="text"
                   className="form-control"
                   id="title"
-                
-                  value={currentTutorial.title || "Untitled"}
+                  value={currentTutorial.title}
                   onChange={this.onChangeTitle}
                 />
               </div>
