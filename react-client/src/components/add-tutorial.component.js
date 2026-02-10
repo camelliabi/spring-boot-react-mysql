@@ -23,9 +23,11 @@ export default class AddTutorial extends Component {
   onChangeTitle(e) {
     const value = e.target.value;
     
-
+    // FIX ERROR_007: Removed .trim() that was breaking user input experience
+    // Original: value.trim() removed spaces while typing, preventing normal text entry
+    // Now: Store value as-is, allowing users to type spaces naturally
     this.setState({
-      title: value.trim()
+      title: value
     });
   }
 
@@ -54,8 +56,12 @@ export default class AddTutorial extends Component {
         });
         console.log(response.data);
         
-     
-        this.state.tags.push("new-tutorial");
+        // FIX ERROR_006: Fixed direct state mutation violation
+        // Original: this.state.tags.push("new-tutorial") directly mutated state
+        // Now: Use setState with array spread to properly update state immutably
+        this.setState(prevState => ({
+          tags: [...prevState.tags, "new-tutorial"]
+        }));
       })
       .catch(e => {
         console.log(e);
