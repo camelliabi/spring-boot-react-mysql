@@ -134,8 +134,13 @@ class Tutorial extends Component {
                   type="text"
                   className="form-control"
                   id="title"
-                
-                  value={currentTutorial.title || "Untitled"}
+                  {/* FIX #6: Removed confusing "Untitled" fallback */}
+                  {/* Changed from: value={currentTutorial.title || "Untitled"} */}
+                  {/* Using "Untitled" as a fallback was misleading - it made the */}
+                  {/* input appear pre-filled when the title was actually empty, */}
+                  {/* and could result in accidentally saving "Untitled" as the title. */}
+                  {/* Now properly uses empty string, allowing users to see the real state. */}
+                  value={currentTutorial.title}
                   onChange={this.onChangeTitle}
                 />
               </div>
