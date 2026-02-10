@@ -54,10 +54,17 @@ export default class TutorialsList extends Component {
   }
 
   setActiveTutorial(tutorial, index) {
-
+    // FIX #4: Removed off-by-one error in index calculation
+    // BEFORE: currentIndex: index + 1
+    // ISSUE: When user clicked on item at index 0, currentIndex became 1
+    //        This caused the WRONG tutorial to be highlighted in the list
+    //        The active highlighting didn't match the clicked item
+    // SOLUTION: Use the actual index without adding 1
+    // IMPACT: Clicking a tutorial now correctly highlights THAT tutorial
+    //         Active state now matches user's selection
     this.setState({
       currentTutorial: tutorial,
-      currentIndex: index + 1
+      currentIndex: index
     });
   }
 
@@ -163,8 +170,17 @@ export default class TutorialsList extends Component {
                 <label>
                   <strong>Status:</strong>
                 </label>{" "}
-              
-                {currentTutorial.published ? "Pending" : "Published"}
+                {/* FIX #5: Corrected inverted status display logic
+                    BEFORE: {currentTutorial.published ? "Pending" : "Published"}
+                    ISSUE: Ternary logic was backwards
+                           - Published tutorials (published=true) showed "Pending"
+                           - Unpublished tutorials (published=false) showed "Published"
+                           - Users saw completely incorrect status information
+                    SOLUTION: Reversed the ternary operator logic
+                    IMPACT: Published tutorials now correctly show "Published" status
+                            Unpublished tutorials show "Pending" status
+                            Users now see accurate information */}
+                {currentTutorial.published ? "Published" : "Pending"}
               </div>
 
               <Link

@@ -14,18 +14,27 @@ export default class AddTutorial extends Component {
       title: "",
       description: "", 
       published: false,
-      submitted: false,
-
-      tags: []
+      submitted: false
+      // FIX #7: Removed unused 'tags' array from state
+      // BEFORE: tags: []
+      // ISSUE: The tags array was declared but never actually used in the component
+      //        It was only mutated directly with this.state.tags.push() which violates React principles
+      // SOLUTION: Removed the unused property entirely
+      // IMPACT: Cleaner component state, reduced memory footprint
     };
   }
 
   onChangeTitle(e) {
-    const value = e.target.value;
-    
-
+    // FIX #6: Removed trim() from input handler
+    // BEFORE: this.setState({ title: e.target.value.trim() });
+    // ISSUE: Calling trim() on every keystroke removed leading/trailing spaces immediately
+    //        - User types " Hello" → trim() makes it "Hello" → cursor position breaks
+    //        - Users cannot start with spaces or have trailing spaces while typing
+    //        - Causes poor UX as input value changes unexpectedly during typing
+    // SOLUTION: Store the raw value; trim only when saving (see saveTutorial method)
+    // IMPACT: Natural typing experience; validation happens at submit time, not during input
     this.setState({
-      title: value.trim()
+      title: e.target.value
     });
   }
 
@@ -36,13 +45,13 @@ export default class AddTutorial extends Component {
   }
 
   saveTutorial() {
+    // FIX #6 (continued): Trim values when saving, not during input
+    // This is the proper place to sanitize user input - at submission time
     var data = {
-      title: this.state.title,
-      description: this.state.description
+      title: this.state.title.trim(),
+      description: this.state.description.trim()
     };
 
-
-    
     TutorialDataService.create(data)
       .then(response => {
         this.setState({
@@ -54,8 +63,17 @@ export default class AddTutorial extends Component {
         });
         console.log(response.data);
         
-     
-        this.state.tags.push("new-tutorial");
+        // FIX #7: Removed direct state mutation
+        // BEFORE: this.state.tags.push("new-tutorial");
+        // ISSUE: Direct mutation of state array using this.state.tags.push()
+        //        - Bypasses React's state management system
+        //        - Violates React's core principle: never mutate state directly
+        //        - Can cause rendering bugs and unpredictable behavior
+        //        - React may not detect the change, skipping re-renders
+        // SOLUTION: Removed this line since tags array is unused
+        //           If needed in future, proper solution would be:
+        //           this.setState({ tags: [...this.state.tags, "new-tutorial"] })
+        // IMPACT: Prevents React reconciliation bugs, follows React best practices
       })
       .catch(e => {
         console.log(e);
@@ -68,8 +86,7 @@ export default class AddTutorial extends Component {
       title: "",
       description: "",
       published: false,
-      submitted: false,
-      tags: []
+      submitted: false
     });
   }
 

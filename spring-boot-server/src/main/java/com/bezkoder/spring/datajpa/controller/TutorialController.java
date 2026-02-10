@@ -39,7 +39,7 @@ public class TutorialController {
 			else
 				tutorialRepository.findByTitleContaining(title).forEach(tutorials::add);
 
-			if (tutorials.size() < 1) {
+			if (tutorials.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
@@ -51,13 +51,11 @@ public class TutorialController {
 
 	@GetMapping("/tutorials/{id}")
 	public ResponseEntity<Tutorial> getTutorialById(@PathVariable("id") long id) {
-		// BUG #2: Logic error - checking if present but returning NOT_FOUND when present
 		Optional<Tutorial> tutorialData = tutorialRepository.findById(id);
 
 		if (tutorialData.isPresent()) {
 			return new ResponseEntity<>(tutorialData.get(), HttpStatus.OK);
 		} else {
-			// BUG #3: Missing return statement will cause compilation issues in some edge cases
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
@@ -65,9 +63,9 @@ public class TutorialController {
 	@PostMapping("/tutorials")
 	public ResponseEntity<Tutorial> createTutorial(@RequestBody Tutorial tutorial) {
 		try {
-			Tutorial tutorial1 = tutorialRepository
+			Tutorial _tutorial = tutorialRepository
 					.save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(), false));
-			return new ResponseEntity<>(tutorial1, HttpStatus.CREATED);
+			return new ResponseEntity<>(_tutorial, HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -81,10 +79,17 @@ public class TutorialController {
 			Tutorial _tutorial = tutorialData.get();
 			_tutorial.setTitle(tutorial.getTitle());
 			_tutorial.setDescription(tutorial.getDescription());
-			// BUG #5: Incorrect boolean comparison - using == instead of proper boolean handling
-			if (tutorial.isPublished() == true) {
-				_tutorial.setPublished(tutorial.isPublished());
-			}
+			
+			// FIX #2: Removed redundant boolean comparison and conditional logic
+			// BEFORE: if (tutorial.isPublished() == true) { _tutorial.setPublished(tutorial.isPublished()); }
+			// ISSUES:
+			//   1. Using '== true' is redundant and considered a code smell in Java
+			//   2. Only updated published status when value was true
+			//   3. Users couldn't UNPUBLISH tutorials (set published to false)
+			// SOLUTION: Always update the published status from the request body
+			// IMPACT: Users can now toggle published status in BOTH directions (publish AND unpublish)
+			_tutorial.setPublished(tutorial.isPublished());
+			
 			return new ResponseEntity<>(tutorialRepository.save(_tutorial), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -115,7 +120,14 @@ public class TutorialController {
 	@GetMapping("/tutorials/published")
 	public ResponseEntity<List<Tutorial>> findByPublished() {
 		try {
-			List<Tutorial> tutorials = tutorialRepository.findByPublished(false);
+			// FIX #3: Changed from findByPublished(false) to findByPublished(true)
+			// BEFORE: List<Tutorial> tutorials = tutorialRepository.findByPublished(false);
+			// ISSUE: Endpoint URL is '/api/tutorials/published' but was calling findByPublished(false)
+			//        This returned UNPUBLISHED tutorials instead of PUBLISHED ones!
+			// SOLUTION: Changed parameter from false to true
+			// IMPACT: API endpoint now returns correct data - published tutorials as expected
+			//         This was a CRITICAL bug affecting all users of this endpoint
+			List<Tutorial> tutorials = tutorialRepository.findByPublished(true);
 
 			if (tutorials.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
