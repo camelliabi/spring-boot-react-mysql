@@ -23,9 +23,12 @@ export default class AddTutorial extends Component {
   onChangeTitle(e) {
     const value = e.target.value;
     
-
+    // FIX #7: Removed unnecessary trim() operation
+    // trim() removes leading/trailing whitespace which may be intentional
+    // Users should be able to enter titles with spaces at the beginning/end if needed
+    // The backend or validation layer should handle trimming if required
     this.setState({
-      title: value.trim()
+      title: value
     });
   }
 
@@ -50,12 +53,14 @@ export default class AddTutorial extends Component {
           title: response.data.title,
           description: response.data.description,
           published: response.data.published,
-          submitted: true
+          submitted: true,
+          // FIX #8: Fixed direct state mutation violation
+          // In React, state should never be mutated directly using methods like push()
+          // Instead, create a new array with the spread operator and new value
+          // This ensures React detects the state change and re-renders properly
+          tags: [...this.state.tags, "new-tutorial"]
         });
         console.log(response.data);
-        
-     
-        this.state.tags.push("new-tutorial");
       })
       .catch(e => {
         console.log(e);

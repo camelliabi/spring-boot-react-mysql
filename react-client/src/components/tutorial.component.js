@@ -134,8 +134,11 @@ class Tutorial extends Component {
                   type="text"
                   className="form-control"
                   id="title"
-                
-                  value={currentTutorial.title || "Untitled"}
+                  {/* FIX #6: Removed default "Untitled" value */}
+                  {/* React controlled components should use empty string for null/undefined values */}
+                  {/* Using || "" ensures the input always has a string value, preventing */}
+                  {/* "uncontrolled to controlled" component warnings */}
+                  value={currentTutorial.title || ""}
                   onChange={this.onChangeTitle}
                 />
               </div>
