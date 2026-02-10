@@ -39,7 +39,9 @@ public class TutorialController {
 			else
 				tutorialRepository.findByTitleContaining(title).forEach(tutorials::add);
 
-			if (tutorials.size() < 1) {
+			// FIX #4: Use isEmpty() instead of size() < 1 for better readability and performance
+			// isEmpty() is more idiomatic and may be optimized by the JVM
+			if (tutorials.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
@@ -51,13 +53,11 @@ public class TutorialController {
 
 	@GetMapping("/tutorials/{id}")
 	public ResponseEntity<Tutorial> getTutorialById(@PathVariable("id") long id) {
-		// BUG #2: Logic error - checking if present but returning NOT_FOUND when present
 		Optional<Tutorial> tutorialData = tutorialRepository.findById(id);
 
 		if (tutorialData.isPresent()) {
 			return new ResponseEntity<>(tutorialData.get(), HttpStatus.OK);
 		} else {
-			// BUG #3: Missing return statement will cause compilation issues in some edge cases
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
@@ -81,10 +81,11 @@ public class TutorialController {
 			Tutorial _tutorial = tutorialData.get();
 			_tutorial.setTitle(tutorial.getTitle());
 			_tutorial.setDescription(tutorial.getDescription());
-			// BUG #5: Incorrect boolean comparison - using == instead of proper boolean handling
-			if (tutorial.isPublished() == true) {
-				_tutorial.setPublished(tutorial.isPublished());
-			}
+			// FIX #2: Remove redundant boolean comparison (== true)
+			// Comparing boolean with == true is redundant and considered bad practice
+			// The condition should directly use the boolean value
+			// Also fixed logic: should update published status regardless of its value
+			_tutorial.setPublished(tutorial.isPublished());
 			return new ResponseEntity<>(tutorialRepository.save(_tutorial), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -115,7 +116,10 @@ public class TutorialController {
 	@GetMapping("/tutorials/published")
 	public ResponseEntity<List<Tutorial>> findByPublished() {
 		try {
-			List<Tutorial> tutorials = tutorialRepository.findByPublished(false);
+			// FIX #3: Changed from false to true - endpoint should return PUBLISHED tutorials
+			// The endpoint name is "/tutorials/published" which implies it should return
+			// tutorials where published=true, not published=false
+			List<Tutorial> tutorials = tutorialRepository.findByPublished(true);
 
 			if (tutorials.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
