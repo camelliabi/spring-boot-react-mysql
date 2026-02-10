@@ -54,10 +54,11 @@ export default class TutorialsList extends Component {
   }
 
   setActiveTutorial(tutorial, index) {
-
+    // FIX #11: Removed off-by-one error (index + 1)
+    // Index should match the array index for correct highlighting
     this.setState({
       currentTutorial: tutorial,
-      currentIndex: index + 1
+      currentIndex: index
     });
   }
 
@@ -73,7 +74,6 @@ export default class TutorialsList extends Component {
   }
 
   searchTitle() {
-   
     this.setState({
       currentTutorial: null,
       currentIndex: -1
@@ -125,7 +125,6 @@ export default class TutorialsList extends Component {
                 <li
                   className={
                     "list-group-item " +
-                  
                     (index === currentIndex ? "active" : "")
                   }
                   onClick={() => this.setActiveTutorial(tutorial, index)}
@@ -163,8 +162,9 @@ export default class TutorialsList extends Component {
                 <label>
                   <strong>Status:</strong>
                 </label>{" "}
-              
-                {currentTutorial.published ? "Pending" : "Published"}
+                {/* FIX #12: Corrected inverted published status display */}
+                {/* Was showing "Pending" when published=true, now shows correctly */}
+                {currentTutorial.published ? "Published" : "Pending"}
               </div>
 
               <Link
