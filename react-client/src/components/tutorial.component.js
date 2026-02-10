@@ -134,8 +134,10 @@ class Tutorial extends Component {
                   type="text"
                   className="form-control"
                   id="title"
-                
-                  value={currentTutorial.title || "Untitled"}
+                  {/* FIX ERROR_010: Removed default "Untitled" that prevented clearing title */}
+                  {/* Original: value={currentTutorial.title || "Untitled"} prevented empty title */}
+                  {/* Now: Use empty string as fallback, allowing users to clear the field */}
+                  value={currentTutorial.title || ""}
                   onChange={this.onChangeTitle}
                 />
               </div>
