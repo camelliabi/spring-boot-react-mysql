@@ -54,10 +54,12 @@ export default class TutorialsList extends Component {
   }
 
   setActiveTutorial(tutorial, index) {
-
+    // FIX ERROR-005: Changed from "index + 1" to "index"
+    // Adding 1 to the index caused wrong tutorial highlighting in the UI.
+    // When clicking the first item (index 0), it would highlight the second item (index 1).
     this.setState({
       currentTutorial: tutorial,
-      currentIndex: index + 1
+      currentIndex: index
     });
   }
 
@@ -73,7 +75,6 @@ export default class TutorialsList extends Component {
   }
 
   searchTitle() {
-   
     this.setState({
       currentTutorial: null,
       currentIndex: -1
@@ -125,7 +126,6 @@ export default class TutorialsList extends Component {
                 <li
                   className={
                     "list-group-item " +
-                  
                     (index === currentIndex ? "active" : "")
                   }
                   onClick={() => this.setActiveTutorial(tutorial, index)}
@@ -163,8 +163,9 @@ export default class TutorialsList extends Component {
                 <label>
                   <strong>Status:</strong>
                 </label>{" "}
-              
-                {currentTutorial.published ? "Pending" : "Published"}
+                {/* FIX ERROR-004: Inverted the ternary condition from "Pending" : "Published" to "Published" : "Pending" */}
+                {/* The logic was backwards - when published=true it showed "Pending", when published=false it showed "Published" */}
+                {currentTutorial.published ? "Published" : "Pending"}
               </div>
 
               <Link
