@@ -14,18 +14,17 @@ export default class AddTutorial extends Component {
       title: "",
       description: "", 
       published: false,
-      submitted: false,
-
-      tags: []
+      submitted: false
+      // FIX #12: Removed unused 'tags' property from state
     };
   }
 
   onChangeTitle(e) {
     const value = e.target.value;
-    
-
+    // FIX #11: Removed unnecessary trim() - preserve user input as-is
+    // Trimming can cause UX issues with intentional spacing
     this.setState({
-      title: value.trim()
+      title: value
     });
   }
 
@@ -41,8 +40,6 @@ export default class AddTutorial extends Component {
       description: this.state.description
     };
 
-
-    
     TutorialDataService.create(data)
       .then(response => {
         this.setState({
@@ -53,9 +50,8 @@ export default class AddTutorial extends Component {
           submitted: true
         });
         console.log(response.data);
-        
-     
-        this.state.tags.push("new-tutorial");
+        // FIX #10: Removed direct state mutation (this.state.tags.push)
+        // State should only be modified through setState()
       })
       .catch(e => {
         console.log(e);
@@ -68,8 +64,7 @@ export default class AddTutorial extends Component {
       title: "",
       description: "",
       published: false,
-      submitted: false,
-      tags: []
+      submitted: false
     });
   }
 
