@@ -14,18 +14,17 @@ export default class AddTutorial extends Component {
       title: "",
       description: "", 
       published: false,
-      submitted: false,
-
-      tags: []
+      submitted: false
     };
   }
 
   onChangeTitle(e) {
-    const value = e.target.value;
-    
-
+    // FIX #6: Removed trim() from input handler
+    // ISSUE: Calling trim() on every keystroke removed leading/trailing spaces immediately
+    // This prevented users from typing spaces at the beginning or end while editing
+    // SOLUTION: Store the raw value; trimming will happen in saveTutorial() before sending to server
     this.setState({
-      title: value.trim()
+      title: e.target.value
     });
   }
 
@@ -36,15 +35,18 @@ export default class AddTutorial extends Component {
   }
 
   saveTutorial() {
+    // Trim values when saving to remove leading/trailing whitespace
     var data = {
-      title: this.state.title,
-      description: this.state.description
+      title: this.state.title.trim(),
+      description: this.state.description.trim()
     };
 
-
-    
     TutorialDataService.create(data)
       .then(response => {
+        // FIX #7: Removed direct state mutation (this.state.tags.push)
+        // ISSUE: Direct mutation via this.state.tags.push() violates React principles
+        // React state should never be mutated directly - always use setState()
+        // SOLUTION: Removed unused 'tags' property entirely as it wasn't being used in the component
         this.setState({
           id: response.data.id,
           title: response.data.title,
@@ -53,9 +55,6 @@ export default class AddTutorial extends Component {
           submitted: true
         });
         console.log(response.data);
-        
-     
-        this.state.tags.push("new-tutorial");
       })
       .catch(e => {
         console.log(e);
@@ -68,8 +67,7 @@ export default class AddTutorial extends Component {
       title: "",
       description: "",
       published: false,
-      submitted: false,
-      tags: []
+      submitted: false
     });
   }
 
