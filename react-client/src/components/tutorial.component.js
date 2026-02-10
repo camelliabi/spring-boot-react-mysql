@@ -65,7 +65,6 @@ class Tutorial extends Component {
   }
 
   updatePublished(status) {
-   
     var data = {
       id: this.state.currentTutorial.id,
       title: this.state.currentTutorial.title,
@@ -75,13 +74,11 @@ class Tutorial extends Component {
 
     TutorialDataService.update(this.state.currentTutorial.id, data)
       .then(response => {
-
         this.setState(prevState => ({
           currentTutorial: {
             ...prevState.currentTutorial,
             published: status
           },
- 
           message: "Status updated successfully!"
         }));
         console.log(response.data);
@@ -108,7 +105,6 @@ class Tutorial extends Component {
   }
 
   deleteTutorial() {    
-   
     TutorialDataService.delete(this.state.currentTutorial.id)
       .then(response => {
         console.log(response.data);
@@ -130,12 +126,13 @@ class Tutorial extends Component {
             <form>
               <div className="form-group">
                 <label htmlFor="title">Title</label>
+                {/* FIX #10: Removed || "Untitled" fallback that prevented clearing the title field */}
+                {/* Users should be able to clear and re-enter the title without forced defaults */}
                 <input
                   type="text"
                   className="form-control"
                   id="title"
-                
-                  value={currentTutorial.title || "Untitled"}
+                  value={currentTutorial.title}
                   onChange={this.onChangeTitle}
                 />
               </div>
