@@ -39,7 +39,13 @@ public class TutorialController {
 			else
 				tutorialRepository.findByTitleContaining(title).forEach(tutorials::add);
 
-			if (tutorials.size() < 1) {
+			// FIX #4: Changed from size() < 1 to isEmpty() for better code quality
+			// ISSUE: Using size() < 1 is non-idiomatic Java
+			// ORIGINAL CODE: if (tutorials.size() < 1)
+			// PROBLEM: Less readable, not following Java Collections best practices
+			// SOLUTION: Use isEmpty() which is the standard idiomatic way
+			// IMPACT: More readable code, follows Java best practices
+			if (tutorials.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
@@ -80,7 +86,7 @@ public class TutorialController {
 			_tutorial.setTitle(tutorial.getTitle());
 			_tutorial.setDescription(tutorial.getDescription());
 			
-			// FIX #3: Removed redundant boolean comparison (== true)
+			// FIX #2: Removed redundant boolean comparison (== true)
 			// ISSUE: if (tutorial.isPublished() == true) only updated when true
 			//        This prevented users from UNPUBLISHING tutorials (setting to false)
 			// ORIGINAL CODE:
@@ -123,7 +129,7 @@ public class TutorialController {
 	@GetMapping("/tutorials/published")
 	public ResponseEntity<List<Tutorial>> findByPublished() {
 		try {
-			// FIX #4: Changed from findByPublished(false) to findByPublished(true)
+			// FIX #3: Changed from findByPublished(false) to findByPublished(true)
 			// ISSUE: Endpoint URL is "/tutorials/published" but was querying for UNPUBLISHED (false)
 			// ORIGINAL CODE: tutorialRepository.findByPublished(false)
 			// PROBLEM: Returned the OPPOSITE of what the endpoint name suggests
