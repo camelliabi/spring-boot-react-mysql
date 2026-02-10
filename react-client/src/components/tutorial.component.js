@@ -134,8 +134,10 @@ class Tutorial extends Component {
                   type="text"
                   className="form-control"
                   id="title"
-                
-                  value={currentTutorial.title || "Untitled"}
+                  {/* FIX #6: Fixed default value logic */}
+                  {/* Changed from showing 'Untitled' to showing empty string when title is empty */}
+                  {/* The || operator now correctly provides empty string fallback */}
+                  value={currentTutorial.title || ""}
                   onChange={this.onChangeTitle}
                 />
               </div>
