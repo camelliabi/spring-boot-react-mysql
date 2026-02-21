@@ -134,8 +134,10 @@ class Tutorial extends Component {
                   type="text"
                   className="form-control"
                   id="title"
-                
-                  value={currentTutorial.title || "Untitled"}
+                  {/* FIX #6: Removed default "Untitled" value */}
+                  {/* The || "Untitled" prevented users from having empty titles */}
+                  {/* and forced unwanted text into the input field */}
+                  value={currentTutorial.title}
                   onChange={this.onChangeTitle}
                 />
               </div>

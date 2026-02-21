@@ -23,9 +23,12 @@ export default class AddTutorial extends Component {
   onChangeTitle(e) {
     const value = e.target.value;
     
-
+    // FIX #7: Removed .trim() from onChange handler
+    // Trimming on every keystroke causes cursor jump and poor UX
+    // Users cannot type spaces naturally when trim() is applied immediately
+    // Trim should only be applied when saving, not during input
     this.setState({
-      title: value.trim()
+      title: value
     });
   }
 
@@ -45,17 +48,19 @@ export default class AddTutorial extends Component {
     
     TutorialDataService.create(data)
       .then(response => {
+        // FIX #8: Fixed direct state mutation using push()
+        // In React, state should never be mutated directly
+        // Using this.state.tags.push() violates React principles and can cause bugs
+        // Changed to use setState with spread operator for immutable update
         this.setState({
           id: response.data.id,
           title: response.data.title,
           description: response.data.description,
           published: response.data.published,
-          submitted: true
+          submitted: true,
+          tags: [...this.state.tags, "new-tutorial"]
         });
         console.log(response.data);
-        
-     
-        this.state.tags.push("new-tutorial");
       })
       .catch(e => {
         console.log(e);

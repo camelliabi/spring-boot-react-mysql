@@ -54,10 +54,12 @@ export default class TutorialsList extends Component {
   }
 
   setActiveTutorial(tutorial, index) {
-
+    // FIX #4: Removed incorrect index + 1 calculation
+    // The index parameter is already the correct array index (0-based)
+    // Adding 1 caused wrong item to be highlighted as active
     this.setState({
       currentTutorial: tutorial,
-      currentIndex: index + 1
+      currentIndex: index
     });
   }
 
@@ -163,8 +165,9 @@ export default class TutorialsList extends Component {
                 <label>
                   <strong>Status:</strong>
                 </label>{" "}
-              
-                {currentTutorial.published ? "Pending" : "Published"}
+                {/* FIX #5: Fixed inverted status display logic */}
+                {/* When published=true, show "Published", when published=false, show "Pending" */}
+                {currentTutorial.published ? "Published" : "Pending"}
               </div>
 
               <Link
