@@ -126,14 +126,14 @@ class Tutorial extends Component {
             <form>
               <div className="form-group">
                 <label htmlFor="title">Title</label>
+                {/* FIX #6: Removed default "Untitled" value */}
+                {/* The || "Untitled" prevented users from having empty titles */}
+                {/* and forced unwanted text into the input field */}
+                {/* Before: value={currentTutorial.title || "Untitled"} */}
                 <input
                   type="text"
                   className="form-control"
                   id="title"
-                  {/* FIX #6: Removed default "Untitled" value */}
-                  {/* The || "Untitled" prevented users from having empty titles */}
-                  {/* and forced unwanted text into the input field */}
-                  {/* Before: value={currentTutorial.title || "Untitled"} */}
                   value={currentTutorial.title}
                   onChange={this.onChangeTitle}
                 />
