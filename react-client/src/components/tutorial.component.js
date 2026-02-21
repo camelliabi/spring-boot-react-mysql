@@ -65,7 +65,6 @@ class Tutorial extends Component {
   }
 
   updatePublished(status) {
-   
     var data = {
       id: this.state.currentTutorial.id,
       title: this.state.currentTutorial.title,
@@ -75,13 +74,11 @@ class Tutorial extends Component {
 
     TutorialDataService.update(this.state.currentTutorial.id, data)
       .then(response => {
-
         this.setState(prevState => ({
           currentTutorial: {
             ...prevState.currentTutorial,
             published: status
           },
- 
           message: "Status updated successfully!"
         }));
         console.log(response.data);
@@ -107,8 +104,7 @@ class Tutorial extends Component {
       });
   }
 
-  deleteTutorial() {    
-   
+  deleteTutorial() {
     TutorialDataService.delete(this.state.currentTutorial.id)
       .then(response => {
         console.log(response.data);
@@ -137,6 +133,7 @@ class Tutorial extends Component {
                   {/* FIX #6: Removed default "Untitled" value */}
                   {/* The || "Untitled" prevented users from having empty titles */}
                   {/* and forced unwanted text into the input field */}
+                  {/* Before: value={currentTutorial.title || "Untitled"} */}
                   value={currentTutorial.title}
                   onChange={this.onChangeTitle}
                 />

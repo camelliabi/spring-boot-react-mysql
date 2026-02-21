@@ -57,6 +57,7 @@ export default class TutorialsList extends Component {
     // FIX #4: Removed incorrect index + 1 calculation
     // The index parameter is already the correct array index (0-based)
     // Adding 1 caused wrong item to be highlighted as active
+    // Before: this.setState({ currentTutorial: tutorial, currentIndex: index + 1 });
     this.setState({
       currentTutorial: tutorial,
       currentIndex: index
@@ -75,7 +76,6 @@ export default class TutorialsList extends Component {
   }
 
   searchTitle() {
-   
     this.setState({
       currentTutorial: null,
       currentIndex: -1
@@ -127,7 +127,6 @@ export default class TutorialsList extends Component {
                 <li
                   className={
                     "list-group-item " +
-                  
                     (index === currentIndex ? "active" : "")
                   }
                   onClick={() => this.setActiveTutorial(tutorial, index)}
@@ -167,6 +166,7 @@ export default class TutorialsList extends Component {
                 </label>{" "}
                 {/* FIX #5: Fixed inverted status display logic */}
                 {/* When published=true, show "Published", when published=false, show "Pending" */}
+                {/* Before: {currentTutorial.published ? "Pending" : "Published"} */}
                 {currentTutorial.published ? "Published" : "Pending"}
               </div>
 

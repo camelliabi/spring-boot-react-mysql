@@ -39,7 +39,7 @@ public class TutorialController {
 			else
 				tutorialRepository.findByTitleContaining(title).forEach(tutorials::add);
 
-			if (tutorials.size() < 1) {
+			if (tutorials.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
@@ -63,9 +63,9 @@ public class TutorialController {
 	@PostMapping("/tutorials")
 	public ResponseEntity<Tutorial> createTutorial(@RequestBody Tutorial tutorial) {
 		try {
-			Tutorial tutorial1 = tutorialRepository
+			Tutorial _tutorial = tutorialRepository
 					.save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(), false));
-			return new ResponseEntity<>(tutorial1, HttpStatus.CREATED);
+			return new ResponseEntity<>(_tutorial, HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -81,6 +81,7 @@ public class TutorialController {
 			_tutorial.setDescription(tutorial.getDescription());
 			// FIX #3: Removed redundant boolean comparison (== true)
 			// Direct boolean check is cleaner and more idiomatic in Java
+			// Before: _tutorial.setPublished(tutorial.isPublished() == true);
 			_tutorial.setPublished(tutorial.isPublished());
 			return new ResponseEntity<>(tutorialRepository.save(_tutorial), HttpStatus.OK);
 		} else {
@@ -114,6 +115,7 @@ public class TutorialController {
 		try {
 			// FIX #2: Changed from false to true - endpoint should return published tutorials
 			// The endpoint name is "/tutorials/published" so it should find published=true
+			// Before: List<Tutorial> tutorials = tutorialRepository.findByPublished(false);
 			List<Tutorial> tutorials = tutorialRepository.findByPublished(true);
 
 			if (tutorials.isEmpty()) {

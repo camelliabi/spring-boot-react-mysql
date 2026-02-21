@@ -15,7 +15,6 @@ export default class AddTutorial extends Component {
       description: "", 
       published: false,
       submitted: false,
-
       tags: []
     };
   }
@@ -27,6 +26,7 @@ export default class AddTutorial extends Component {
     // Trimming on every keystroke causes cursor jump and poor UX
     // Users cannot type spaces naturally when trim() is applied immediately
     // Trim should only be applied when saving, not during input
+    // Before: this.setState({ title: e.target.value.trim() });
     this.setState({
       title: value
     });
@@ -44,14 +44,13 @@ export default class AddTutorial extends Component {
       description: this.state.description
     };
 
-
-    
     TutorialDataService.create(data)
       .then(response => {
         // FIX #8: Fixed direct state mutation using push()
         // In React, state should never be mutated directly
         // Using this.state.tags.push() violates React principles and can cause bugs
         // Changed to use setState with spread operator for immutable update
+        // Before: this.state.tags.push("new-tutorial");
         this.setState({
           id: response.data.id,
           title: response.data.title,
