@@ -39,7 +39,7 @@ public class TutorialController {
 			else
 				tutorialRepository.findByTitleContaining(title).forEach(tutorials::add);
 
-			if (tutorials.size() < 1) {
+			if (tutorials.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
@@ -61,29 +61,58 @@ public class TutorialController {
 	}
 
 	@PostMapping("/tutorials")
-	public ResponseEntity<Tutorial> createTutorial(@RequestBody Tutorial tutorial) {
+	public ResponseEntity<?> createTutorial(@RequestBody Tutorial tutorial) {
 		try {
-			Tutorial tutorial1 = tutorialRepository
-					.save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(), false));
-			return new ResponseEntity<>(tutorial1, HttpStatus.CREATED);
+			// BUG #2 FIX: Add validation for null/empty title and description
+			if (tutorial.getTitle() == null || tutorial.getTitle().trim().isEmpty()) {
+				return new ResponseEntity<>("Title is required and cannot be empty", HttpStatus.BAD_REQUEST);
+			}
+			
+			if (tutorial.getDescription() == null || tutorial.getDescription().trim().isEmpty()) {
+				return new ResponseEntity<>("Description is required and cannot be empty", HttpStatus.BAD_REQUEST);
+			}
+
+			// Trim whitespace from inputs to prevent storage of whitespace-only strings
+			tutorial.setTitle(tutorial.getTitle().trim());
+			tutorial.setDescription(tutorial.getDescription().trim());
+
+			Tutorial _tutorial = tutorialRepository.save(new Tutorial(
+				tutorial.getTitle(), 
+				tutorial.getDescription(), 
+				false
+			));
+			
+			return new ResponseEntity<>(_tutorial, HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@PutMapping("/tutorials/{id}")
-	public ResponseEntity<Tutorial> updateTutorial(@PathVariable("id") long id, @RequestBody Tutorial tutorial) {
+	public ResponseEntity<?> updateTutorial(@PathVariable("id") long id, @RequestBody Tutorial tutorial) {
 		Optional<Tutorial> tutorialData = tutorialRepository.findById(id);
 
 		if (tutorialData.isPresent()) {
-			Tutorial _tutorial = tutorialData.get();
-			_tutorial.setTitle(tutorial.getTitle());
-			_tutorial.setDescription(tutorial.getDescription());
-			// FIX #3: Removed redundant boolean comparison (== true)
-			// Simplified to use boolean value directly in conditional
-			if (tutorial.isPublished()) {
-				_tutorial.setPublished(tutorial.isPublished());
+			// BUG #4 FIX: Add validation for null/empty title and description in update
+			if (tutorial.getTitle() == null || tutorial.getTitle().trim().isEmpty()) {
+				return new ResponseEntity<>("Title is required and cannot be empty", HttpStatus.BAD_REQUEST);
 			}
+			
+			if (tutorial.getDescription() == null || tutorial.getDescription().trim().isEmpty()) {
+				return new ResponseEntity<>("Description is required and cannot be empty", HttpStatus.BAD_REQUEST);
+			}
+
+			Tutorial _tutorial = tutorialData.get();
+			
+			// Trim whitespace from inputs
+			_tutorial.setTitle(tutorial.getTitle().trim());
+			_tutorial.setDescription(tutorial.getDescription().trim());
+			
+			// BUG #3 FIX: Remove conditional check - always update published status
+			// Previous code: if (tutorial.isPublished()) { _tutorial.setPublished(tutorial.isPublished()); }
+			// This caused published status to be lost when tutorial.isPublished() was false
+			_tutorial.setPublished(tutorial.isPublished());
+			
 			return new ResponseEntity<>(tutorialRepository.save(_tutorial), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -108,23 +137,20 @@ public class TutorialController {
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
 	}
 
 	@GetMapping("/tutorials/published")
 	public ResponseEntity<List<Tutorial>> findByPublished() {
 		try {
-			// FIX #2: Changed from findByPublished(false) to findByPublished(true)
-			// The /tutorials/published endpoint should return published tutorials, not unpublished ones
 			List<Tutorial> tutorials = tutorialRepository.findByPublished(true);
 
 			if (tutorials.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
+			
 			return new ResponseEntity<>(tutorials, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-
 }
