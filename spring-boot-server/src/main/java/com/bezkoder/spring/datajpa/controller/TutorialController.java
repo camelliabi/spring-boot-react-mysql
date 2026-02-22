@@ -39,7 +39,7 @@ public class TutorialController {
 			else
 				tutorialRepository.findByTitleContaining(title).forEach(tutorials::add);
 
-			if (tutorials.size() < 1) {
+			if (tutorials.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
@@ -63,9 +63,9 @@ public class TutorialController {
 	@PostMapping("/tutorials")
 	public ResponseEntity<Tutorial> createTutorial(@RequestBody Tutorial tutorial) {
 		try {
-			Tutorial tutorial1 = tutorialRepository
+			Tutorial _tutorial = tutorialRepository
 					.save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(), false));
-			return new ResponseEntity<>(tutorial1, HttpStatus.CREATED);
+			return new ResponseEntity<>(_tutorial, HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -79,11 +79,9 @@ public class TutorialController {
 			Tutorial _tutorial = tutorialData.get();
 			_tutorial.setTitle(tutorial.getTitle());
 			_tutorial.setDescription(tutorial.getDescription());
-			// FIX #3: Removed redundant boolean comparison (== true)
-			// Simplified to use boolean value directly in conditional
-			if (tutorial.isPublished()) {
-				_tutorial.setPublished(tutorial.isPublished());
-			}
+			// FIX #2: Removed redundant boolean comparison (== true)
+			// Simplified to directly set the published status without unnecessary comparison
+			_tutorial.setPublished(tutorial.isPublished());
 			return new ResponseEntity<>(tutorialRepository.save(_tutorial), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -114,7 +112,7 @@ public class TutorialController {
 	@GetMapping("/tutorials/published")
 	public ResponseEntity<List<Tutorial>> findByPublished() {
 		try {
-			// FIX #2: Changed from findByPublished(false) to findByPublished(true)
+			// FIX #1: Changed from findByPublished(false) to findByPublished(true)
 			// The /tutorials/published endpoint should return published tutorials, not unpublished ones
 			List<Tutorial> tutorials = tutorialRepository.findByPublished(true);
 
