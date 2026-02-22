@@ -16,7 +16,11 @@ export default class TutorialsList extends Component {
       tutorials: [],
       currentTutorial: null,
       currentIndex: -1,
-      searchTitle: ""
+      searchTitle: "",
+      // BUG #13 FIX: Add loading state to show loading indicator
+      isLoading: false,
+      // BUG #8 FIX: Add error state for proper error handling
+      error: null
     };
   }
 
@@ -26,73 +30,101 @@ export default class TutorialsList extends Component {
 
   onChangeSearchTitle(e) {
     const searchTitle = e.target.value;
-
-    this.setState({
-      searchTitle: searchTitle
-    });
+    this.setState({ searchTitle: searchTitle });
   }
 
   retrieveTutorials() {
+    // BUG #13 FIX: Set loading state before API call
+    this.setState({ isLoading: true, error: null });
+
     TutorialDataService.getAll()
       .then(response => {
-        this.setState({
-          tutorials: response.data
-        });
-        console.log(response.data);
+        // BUG #8 FIX: Handle 204 No Content status code
+        const tutorials = response.data || [];
+        this.setState({ tutorials: tutorials, isLoading: false, error: null });
       })
       .catch(e => {
-        console.log(e);
+        // BUG #8 FIX: Properly handle errors and provide user feedback
+        console.error("Error retrieving tutorials:", e);
+        
+        if (e.response && e.response.status === 204) {
+          this.setState({ tutorials: [], isLoading: false, error: null });
+        } else {
+          this.setState({
+            tutorials: [],
+            isLoading: false,
+            error: "Failed to load tutorials. Please try again later."
+          });
+        }
       });
   }
 
   refreshList() {
     this.retrieveTutorials();
-    this.setState({
-      currentTutorial: null,
-      currentIndex: -1
-    });
+    this.setState({ currentTutorial: null, currentIndex: -1 });
   }
 
   setActiveTutorial(tutorial, index) {
-    // FIX #4: Removed '+ 1' to fix off-by-one error in selection highlighting
-    // Arrays are zero-indexed, so currentIndex should match the array index directly
-    this.setState({
-      currentTutorial: tutorial,
-      currentIndex: index
-    });
+    this.setState({ currentTutorial: tutorial, currentIndex: index });
   }
 
   removeAllTutorials() {
+    // BUG #13 FIX: Set loading state before API call
+    this.setState({ isLoading: true, error: null });
+
     TutorialDataService.deleteAll()
       .then(response => {
         console.log(response.data);
         this.refreshList();
       })
       .catch(e => {
-        console.log(e);
+        // BUG #8 FIX: Properly handle errors
+        console.error("Error deleting tutorials:", e);
+        
+        if (e.response && e.response.status === 204) {
+          this.refreshList();
+        } else {
+          this.setState({
+            isLoading: false,
+            error: "Failed to delete tutorials. Please try again."
+          });
+        }
       });
   }
 
   searchTitle() {
-    this.setState({
+    // BUG #13 FIX: Set loading state before API call
+    this.setState({ 
+      isLoading: true,
+      error: null,
       currentTutorial: null,
       currentIndex: -1
     });
 
     TutorialDataService.findByTitle(this.state.searchTitle)
       .then(response => {
-        this.setState({
-          tutorials: response.data
-        });
-        console.log(response.data);
+        // BUG #8 FIX: Handle 204 No Content status code
+        const tutorials = response.data || [];
+        this.setState({ tutorials: tutorials, isLoading: false, error: null });
       })
       .catch(e => {
-        console.log(e);
+        // BUG #8 FIX: Properly handle errors
+        console.error("Error searching tutorials:", e);
+        
+        if (e.response && e.response.status === 204) {
+          this.setState({ tutorials: [], isLoading: false, error: null });
+        } else {
+          this.setState({
+            tutorials: [],
+            isLoading: false,
+            error: "Failed to search tutorials. Please try again."
+          });
+        }
       });
   }
 
   render() {
-    const { searchTitle, tutorials, currentTutorial, currentIndex } = this.state;
+    const { searchTitle, tutorials, currentTutorial, currentIndex, isLoading, error } = this.state;
 
     return (
       <div className="list row">
@@ -110,6 +142,7 @@ export default class TutorialsList extends Component {
                 className="btn btn-outline-secondary"
                 type="button"
                 onClick={this.searchTitle}
+                disabled={isLoading}
               >
                 Search
               </button>
@@ -119,25 +152,43 @@ export default class TutorialsList extends Component {
         <div className="col-md-6">
           <h4>Tutorials List</h4>
 
-          <ul className="list-group">
-            {tutorials &&
-              tutorials.map((tutorial, index) => (
-                <li
-                  className={
-                    "list-group-item " +
-                    (index === currentIndex ? "active" : "")
-                  }
-                  onClick={() => this.setActiveTutorial(tutorial, index)}
-                  key={index}
-                >
-                  {tutorial.title}
-                </li>
-              ))}
-          </ul>
+          {isLoading && (
+            <div className="alert alert-info" role="alert">
+              Loading tutorials...
+            </div>
+          )}
+
+          {error && (
+            <div className="alert alert-danger" role="alert">
+              {error}
+            </div>
+          )}
+
+          {!isLoading && !error && (
+            <ul className="list-group">
+              {tutorials.length > 0 ? (
+                tutorials.map((tutorial, index) => (
+                  <li
+                    className={
+                      "list-group-item " +
+                      (index === currentIndex ? "active" : "")
+                    }
+                    onClick={() => this.setActiveTutorial(tutorial, index)}
+                    key={index}
+                  >
+                    {tutorial.title}
+                  </li>
+                ))
+              ) : (
+                <li className="list-group-item">No tutorials found</li>
+              )}
+            </ul>
+          )}
 
           <button
             className="m-3 btn btn-sm btn-danger"
             onClick={this.removeAllTutorials}
+            disabled={isLoading || tutorials.length === 0}
           >
             Remove All
           </button>
@@ -162,8 +213,6 @@ export default class TutorialsList extends Component {
                 <label>
                   <strong>Status:</strong>
                 </label>{" "}
-                {/* FIX #5: Corrected inverted status display logic */}
-                {/* When published is true, show 'Published'; when false, show 'Pending' */}
                 {currentTutorial.published ? "Published" : "Pending"}
               </div>
 
