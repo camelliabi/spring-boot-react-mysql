@@ -22,10 +22,13 @@ export default class AddTutorial extends Component {
 
   onChangeTitle(e) {
     const value = e.target.value;
-    
-
+    // FIX #7: Removed aggressive trim() during typing
+    // Old code: this.setState({ title: value.trim() });
+    // This prevented users from typing spaces naturally (e.g., "My Tutorial" became "MyTutorial")
+    // Trim should only be applied on form submission, not during real-time input
+    // This allows natural typing behavior while still cleaning data before saving
     this.setState({
-      title: value.trim()
+      title: value
     });
   }
 
@@ -54,8 +57,16 @@ export default class AddTutorial extends Component {
         });
         console.log(response.data);
         
-     
-        this.state.tags.push("new-tutorial");
+        // FIX #8: Replaced direct state mutation with immutable update
+        // Old code: this.state.tags.push("new-tutorial");
+        // Direct state mutation violates React's immutability principle and causes:
+        // - Component won't re-render (React doesn't detect the change)
+        // - Potential state corruption in concurrent updates
+        // - Unpredictable behavior in component lifecycle
+        // Now using proper immutable state update pattern
+        this.setState({
+          tags: [...this.state.tags, "new-tutorial"]
+        });
       })
       .catch(e => {
         console.log(e);
