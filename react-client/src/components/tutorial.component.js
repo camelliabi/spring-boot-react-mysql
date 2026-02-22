@@ -19,7 +19,9 @@ class Tutorial extends Component {
         description: "",
         published: false
       },
-      message: ""
+      message: "",
+      // FIX ERR-010: Add error state for validation feedback
+      error: ""
     };
   }
 
@@ -79,16 +81,31 @@ class Tutorial extends Component {
             ...prevState.currentTutorial,
             published: status
           },
-          message: "Status updated successfully!"
+          message: "Status updated successfully!",
+          error: "" // Clear any errors
         }));
         console.log(response.data);
       })
       .catch(e => {
         console.log(e);
+        this.setState({ error: "Failed to update status. Please try again." });
       });
   }
 
   updateTutorial() {
+    // FIX ERR-010: Add validation before updating
+    if (!this.state.currentTutorial.title || this.state.currentTutorial.title.trim() === "") {
+      this.setState({ error: "Title is required and cannot be empty", message: "" });
+      return;
+    }
+    if (!this.state.currentTutorial.description || this.state.currentTutorial.description.trim() === "") {
+      this.setState({ error: "Description is required and cannot be empty", message: "" });
+      return;
+    }
+
+    // Clear any previous errors
+    this.setState({ error: "" });
+
     TutorialDataService.update(
       this.state.currentTutorial.id,
       this.state.currentTutorial
@@ -96,11 +113,14 @@ class Tutorial extends Component {
       .then(response => {
         console.log(response.data);
         this.setState({
-          message: "The tutorial was updated successfully!"
+          message: "The tutorial was updated successfully!",
+          error: "" // Clear error on success
         });
       })
       .catch(e => {
         console.log(e);
+        // FIX ERR-010: Display error to user
+        this.setState({ error: "Failed to update tutorial. Please try again.", message: "" });
       });
   }
 
@@ -112,6 +132,7 @@ class Tutorial extends Component {
       })
       .catch(e => {
         console.log(e);
+        this.setState({ error: "Failed to delete tutorial. Please try again." });
       });
   }
 
@@ -123,6 +144,14 @@ class Tutorial extends Component {
         {currentTutorial ? (
           <div className="edit-form">
             <h4>Tutorial</h4>
+            
+            {/* FIX ERR-010: Display error message to user */}
+            {this.state.error && (
+              <div className="alert alert-danger" role="alert">
+                {this.state.error}
+              </div>
+            )}
+
             <form>
               <div className="form-group">
                 <label htmlFor="title">Title</label>
@@ -130,8 +159,6 @@ class Tutorial extends Component {
                   type="text"
                   className="form-control"
                   id="title"
-                  {/* FIX #8: Removed default 'Untitled' value to enforce data quality */}
-                  {/* Empty titles should be handled with proper validation instead of masking with defaults */}
                   value={currentTutorial.title || ""}
                   onChange={this.onChangeTitle}
                 />
