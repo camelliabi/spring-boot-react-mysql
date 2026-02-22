@@ -26,7 +26,11 @@ class TutorialDataService {
   }
 
   findByTitle(title) {
-    return http.get(`/tutorials?title=${title}`);
+    // BUG #12 FIX: Use encodeURIComponent() to properly encode search parameter
+    // This prevents issues with special characters like spaces, &, ?, #, etc.
+    // Example: "React & Redux" becomes "React%20%26%20Redux"
+    const encodedTitle = encodeURIComponent(title);
+    return http.get(`/tutorials?title=${encodedTitle}`);
   }
 }
 

@@ -12,41 +12,50 @@ export default class AddTutorial extends Component {
     this.state = {
       id: null,
       title: "",
-      description: "", 
+      description: "",
       published: false,
-      submitted: false
+      submitted: false,
+      // BUG #13 FIX: Add loading state
+      isLoading: false,
+      // BUG #9 FIX: Add error state for validation and API errors
+      error: null
     };
   }
 
   onChangeTitle(e) {
-    const value = e.target.value;
-    
-    // FIX #6: Changed to use trim() only (removes leading/trailing whitespace)
-    // This preserves internal spaces in multi-word titles like "Spring Boot Tutorial"
-    // Previous implementation may have stripped all whitespace incorrectly
     this.setState({
-      title: value
+      title: e.target.value,
+      error: null
     });
   }
 
   onChangeDescription(e) {
     this.setState({
-      description: e.target.value
+      description: e.target.value,
+      error: null
     });
   }
 
   saveTutorial() {
-    // Validate and trim title before saving
-    const trimmedTitle = this.state.title.trim();
-    
-    if (!trimmedTitle) {
-      console.error("Title is required");
+    // BUG #9 FIX: Add client-side validation before API call
+    const { title, description } = this.state;
+
+    if (!title || title.trim().length === 0) {
+      this.setState({ error: "Title is required and cannot be empty" });
       return;
     }
 
+    if (!description || description.trim().length === 0) {
+      this.setState({ error: "Description is required and cannot be empty" });
+      return;
+    }
+
+    // BUG #13 FIX: Set loading state before API call
+    this.setState({ isLoading: true, error: null });
+
     var data = {
-      title: trimmedTitle,
-      description: this.state.description.trim()
+      title: title.trim(),
+      description: description.trim()
     };
 
     TutorialDataService.create(data)
@@ -56,12 +65,31 @@ export default class AddTutorial extends Component {
           title: response.data.title,
           description: response.data.description,
           published: response.data.published,
-          submitted: true
+          submitted: true,
+          isLoading: false,
+          error: null
         });
         console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        // BUG #9 FIX: Handle errors and display to user
+        console.error("Error creating tutorial:", e);
+        
+        let errorMessage = "Failed to create tutorial. Please try again.";
+        
+        if (e.response && e.response.data) {
+          if (typeof e.response.data === 'string') {
+            errorMessage = e.response.data;
+          } else if (e.response.data.message) {
+            errorMessage = e.response.data.message;
+          }
+        }
+        
+        this.setState({
+          isLoading: false,
+          error: errorMessage,
+          submitted: false
+        });
       });
   }
 
@@ -71,14 +99,18 @@ export default class AddTutorial extends Component {
       title: "",
       description: "",
       published: false,
-      submitted: false
+      submitted: false,
+      isLoading: false,
+      error: null
     });
   }
 
   render() {
+    const { title, description, submitted, isLoading, error } = this.state;
+
     return (
       <div className="submit-form">
-        {this.state.submitted ? (
+        {submitted ? (
           <div>
             <h4>You submitted successfully!</h4>
             <button className="btn btn-success" onClick={this.newTutorial}>
@@ -87,6 +119,12 @@ export default class AddTutorial extends Component {
           </div>
         ) : (
           <div>
+            {error && (
+              <div className="alert alert-danger" role="alert">
+                {error}
+              </div>
+            )}
+
             <div className="form-group">
               <label htmlFor="title">Title</label>
               <input
@@ -94,9 +132,10 @@ export default class AddTutorial extends Component {
                 className="form-control"
                 id="title"
                 required
-                value={this.state.title}
+                value={title}
                 onChange={this.onChangeTitle}
                 name="title"
+                disabled={isLoading}
               />
             </div>
 
@@ -107,14 +146,19 @@ export default class AddTutorial extends Component {
                 className="form-control"
                 id="description"
                 required
-                value={this.state.description}
+                value={description}
                 onChange={this.onChangeDescription}
                 name="description"
+                disabled={isLoading}
               />
             </div>
 
-            <button onClick={this.saveTutorial} className="btn btn-success">
-              Submit
+            <button 
+              onClick={this.saveTutorial} 
+              className="btn btn-success"
+              disabled={isLoading}
+            >
+              {isLoading ? "Submitting..." : "Submit"}
             </button>
           </div>
         )}
