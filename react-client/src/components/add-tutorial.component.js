@@ -14,18 +14,15 @@ export default class AddTutorial extends Component {
       title: "",
       description: "", 
       published: false,
-      submitted: false
+      submitted: false,
+      // FIX ERR-011: Add error state for user feedback
+      error: ""
     };
   }
 
   onChangeTitle(e) {
-    const value = e.target.value;
-    
-    // FIX #6: Changed to use trim() only (removes leading/trailing whitespace)
-    // This preserves internal spaces in multi-word titles like "Spring Boot Tutorial"
-    // Previous implementation may have stripped all whitespace incorrectly
     this.setState({
-      title: value
+      title: e.target.value
     });
   }
 
@@ -36,16 +33,22 @@ export default class AddTutorial extends Component {
   }
 
   saveTutorial() {
-    // Validate and trim title before saving
-    const trimmedTitle = this.state.title.trim();
-    
-    if (!trimmedTitle) {
-      console.error("Title is required");
+    // FIX ERR-009: Add validation for both title and description
+    // FIX ERR-011: Provide user feedback instead of silent console.error
+    if (!this.state.title || this.state.title.trim() === "") {
+      this.setState({ error: "Title is required and cannot be empty" });
+      return;
+    }
+    if (!this.state.description || this.state.description.trim() === "") {
+      this.setState({ error: "Description is required and cannot be empty" });
       return;
     }
 
+    // Clear any previous errors
+    this.setState({ error: "" });
+
     var data = {
-      title: trimmedTitle,
+      title: this.state.title.trim(),
       description: this.state.description.trim()
     };
 
@@ -56,12 +59,15 @@ export default class AddTutorial extends Component {
           title: response.data.title,
           description: response.data.description,
           published: response.data.published,
-          submitted: true
+          submitted: true,
+          error: "" // Clear error on success
         });
         console.log(response.data);
       })
       .catch(e => {
         console.log(e);
+        // FIX ERR-011: Display error to user instead of silent failure
+        this.setState({ error: "Failed to create tutorial. Please try again." });
       });
   }
 
@@ -71,7 +77,8 @@ export default class AddTutorial extends Component {
       title: "",
       description: "",
       published: false,
-      submitted: false
+      submitted: false,
+      error: "" // Clear error when starting new tutorial
     });
   }
 
@@ -87,6 +94,13 @@ export default class AddTutorial extends Component {
           </div>
         ) : (
           <div>
+            {/* FIX ERR-011: Display error message to user */}
+            {this.state.error && (
+              <div className="alert alert-danger" role="alert">
+                {this.state.error}
+              </div>
+            )}
+
             <div className="form-group">
               <label htmlFor="title">Title</label>
               <input

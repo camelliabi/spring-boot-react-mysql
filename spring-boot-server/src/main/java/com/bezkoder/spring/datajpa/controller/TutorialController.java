@@ -18,13 +18,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+// FIX ERR-017: Add SLF4J logger for exception tracking
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bezkoder.spring.datajpa.model.Tutorial;
 import com.bezkoder.spring.datajpa.repository.TutorialRepository;
 
-@CrossOrigin(origins = "http://localhost:8081")
+// FIX ERR-006: Removed hardcoded @CrossOrigin - now configured in WebConfig.java
 @RestController
 @RequestMapping("/api")
 public class TutorialController {
+
+	// FIX ERR-017: Add logger instance for exception logging
+	private static final Logger logger = LoggerFactory.getLogger(TutorialController.class);
 
 	@Autowired
 	TutorialRepository tutorialRepository;
@@ -34,17 +41,21 @@ public class TutorialController {
 		try {
 			List<Tutorial> tutorials = new ArrayList<Tutorial>();
 
-			if (title == null)
+			// FIX ERR-021: Check for both null and empty string to handle edge cases
+			// Empty string or whitespace-only strings should return all tutorials
+			if (title == null || title.trim().isEmpty())
 				tutorialRepository.findAll().forEach(tutorials::add);
 			else
 				tutorialRepository.findByTitleContaining(title).forEach(tutorials::add);
 
-			if (tutorials.size() < 1) {
+			if (tutorials.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
 			return new ResponseEntity<>(tutorials, HttpStatus.OK);
 		} catch (Exception e) {
+			// FIX ERR-017: Log exception details before returning error response
+			logger.error("Error retrieving tutorials with title filter '{}': {}", title, e.getMessage(), e);
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -63,10 +74,26 @@ public class TutorialController {
 	@PostMapping("/tutorials")
 	public ResponseEntity<Tutorial> createTutorial(@RequestBody Tutorial tutorial) {
 		try {
-			Tutorial tutorial1 = tutorialRepository
-					.save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(), false));
-			return new ResponseEntity<>(tutorial1, HttpStatus.CREATED);
+			// FIX ERR-007: Add backend validation for required fields
+			// Prevent creation of tutorials with empty or null title
+			if (tutorial.getTitle() == null || tutorial.getTitle().trim().isEmpty()) {
+				logger.warn("Attempted to create tutorial with empty title");
+				return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+			}
+			// FIX ERR-007: Validate description is not empty
+			if (tutorial.getDescription() == null || tutorial.getDescription().trim().isEmpty()) {
+				logger.warn("Attempted to create tutorial with empty description");
+				return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+			}
+
+			// FIX ERR-008: Use actual published value from request instead of hardcoded false
+			// This allows creating tutorials in published state directly
+			Tutorial _tutorial = tutorialRepository
+					.save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(), tutorial.isPublished()));
+			return new ResponseEntity<>(_tutorial, HttpStatus.CREATED);
 		} catch (Exception e) {
+			// FIX ERR-017: Log exception details for debugging
+			logger.error("Error creating tutorial: {}", e.getMessage(), e);
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -79,11 +106,13 @@ public class TutorialController {
 			Tutorial _tutorial = tutorialData.get();
 			_tutorial.setTitle(tutorial.getTitle());
 			_tutorial.setDescription(tutorial.getDescription());
-			// FIX #3: Removed redundant boolean comparison (== true)
-			// Simplified to use boolean value directly in conditional
-			if (tutorial.isPublished()) {
-				_tutorial.setPublished(tutorial.isPublished());
-			}
+			
+			// FIX ERR-001: Removed conditional check to allow unpublishing tutorials
+			// Previous code: if (tutorial.isPublished()) { _tutorial.setPublished(...); }
+			// This prevented changing published from true to false
+			// Now always updates published status to match request
+			_tutorial.setPublished(tutorial.isPublished());
+			
 			return new ResponseEntity<>(tutorialRepository.save(_tutorial), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -96,6 +125,8 @@ public class TutorialController {
 			tutorialRepository.deleteById(id);
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		} catch (Exception e) {
+			// FIX ERR-017: Log exception with tutorial ID context
+			logger.error("Error deleting tutorial with id {}: {}", id, e.getMessage(), e);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -106,6 +137,8 @@ public class TutorialController {
 			tutorialRepository.deleteAll();
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		} catch (Exception e) {
+			// FIX ERR-017: Log exception for bulk delete failures
+			logger.error("Error deleting all tutorials: {}", e.getMessage(), e);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
@@ -114,8 +147,8 @@ public class TutorialController {
 	@GetMapping("/tutorials/published")
 	public ResponseEntity<List<Tutorial>> findByPublished() {
 		try {
-			// FIX #2: Changed from findByPublished(false) to findByPublished(true)
-			// The /tutorials/published endpoint should return published tutorials, not unpublished ones
+			// Returns published tutorials (published=true)
+			// This endpoint semantically should return published items
 			List<Tutorial> tutorials = tutorialRepository.findByPublished(true);
 
 			if (tutorials.isEmpty()) {
@@ -123,6 +156,8 @@ public class TutorialController {
 			}
 			return new ResponseEntity<>(tutorials, HttpStatus.OK);
 		} catch (Exception e) {
+			// FIX ERR-017: Log exception for published tutorials query
+			logger.error("Error retrieving published tutorials: {}", e.getMessage(), e);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
