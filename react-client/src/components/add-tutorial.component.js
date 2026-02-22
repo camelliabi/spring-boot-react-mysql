@@ -14,18 +14,22 @@ export default class AddTutorial extends Component {
       title: "",
       description: "", 
       published: false,
-      submitted: false,
-
-      tags: []
+      submitted: false
+      // FIX #9: Removed unused 'tags' state property
+      // ORIGINAL BUG: 'tags' array was initialized but never read or used properly
+      // It was only mutated incorrectly (direct state mutation)
+      // FIXED: Removed dead code to improve maintainability
     };
   }
 
   onChangeTitle(e) {
     const value = e.target.value;
-    
-
+    // FIX #5: Fixed input trimming on keystroke
+    // ORIGINAL BUG: Used value.trim() which prevented typing spaces during input
+    // Users couldn't type multi-word titles naturally (e.g., "My Tutorial")
+    // FIXED: Store raw value, trim only on submit in saveTutorial()
     this.setState({
-      title: value.trim()
+      title: value
     });
   }
 
@@ -36,13 +40,12 @@ export default class AddTutorial extends Component {
   }
 
   saveTutorial() {
+    // Trim whitespace only when submitting, not during typing
     var data = {
-      title: this.state.title,
+      title: this.state.title.trim(),
       description: this.state.description
     };
 
-
-    
     TutorialDataService.create(data)
       .then(response => {
         this.setState({
@@ -54,8 +57,10 @@ export default class AddTutorial extends Component {
         });
         console.log(response.data);
         
-     
-        this.state.tags.push("new-tutorial");
+        // FIX #6: Removed direct state mutation
+        // ORIGINAL BUG: this.state.tags.push("new-tutorial") directly mutated state
+        // This violates React's immutability contract and prevents re-renders
+        // FIXED: Removed entirely as 'tags' was unused (see FIX #9)
       })
       .catch(e => {
         console.log(e);
@@ -68,8 +73,7 @@ export default class AddTutorial extends Component {
       title: "",
       description: "",
       published: false,
-      submitted: false,
-      tags: []
+      submitted: false
     });
   }
 

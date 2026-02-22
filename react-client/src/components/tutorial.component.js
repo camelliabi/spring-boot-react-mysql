@@ -130,12 +130,17 @@ class Tutorial extends Component {
             <form>
               <div className="form-group">
                 <label htmlFor="title">Title</label>
+                {/* FIX #7: Fixed fallback value preventing empty input */}
+                {/* ORIGINAL BUG: Used || "Untitled" which prevented clearing the input field */}
+                {/* In controlled components, empty string is falsy, so fallback always appeared */}
+                {/* Users couldn't delete all text or submit empty titles */}
+                {/* FIXED: Use nullish coalescing (??) and move "Untitled" to placeholder */}
                 <input
                   type="text"
                   className="form-control"
                   id="title"
-                
-                  value={currentTutorial.title || "Untitled"}
+                  placeholder="Untitled"
+                  value={currentTutorial.title ?? ""}
                   onChange={this.onChangeTitle}
                 />
               </div>
