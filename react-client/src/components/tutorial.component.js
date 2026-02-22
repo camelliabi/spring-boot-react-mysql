@@ -130,9 +130,12 @@ class Tutorial extends Component {
                   type="text"
                   className="form-control"
                   id="title"
-                  {/* FIX #8: Removed default 'Untitled' value to enforce data quality */}
-                  {/* Empty titles should be handled with proper validation instead of masking with defaults */}
-                  value={currentTutorial.title || ""}
+                  {/* FIX #6: Changed from || to ?? (nullish coalescing) */}
+                  {/* Previous code: value={currentTutorial.title || "Untitled"} */}
+                  {/* Problem: Empty string ("") is falsy, so it would show "Untitled" */}
+                  {/* This prevented users from seeing or editing actually empty titles */}
+                  {/* Solution: Use ?? which only checks for null/undefined, not empty string */}
+                  value={currentTutorial.title ?? ""}
                   onChange={this.onChangeTitle}
                 />
               </div>
@@ -142,7 +145,7 @@ class Tutorial extends Component {
                   type="text"
                   className="form-control"
                   id="description"
-                  value={currentTutorial.description || ""}
+                  value={currentTutorial.description ?? ""}
                   onChange={this.onChangeDescription}
                 />
               </div>
