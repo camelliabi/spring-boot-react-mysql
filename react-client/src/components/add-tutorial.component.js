@@ -21,9 +21,11 @@ export default class AddTutorial extends Component {
   onChangeTitle(e) {
     const value = e.target.value;
     
-    // FIX #6: Changed to use trim() only (removes leading/trailing whitespace)
-    // This preserves internal spaces in multi-word titles like "Spring Boot Tutorial"
-    // Previous implementation may have stripped all whitespace incorrectly
+    // FIX #7: Removed .trim() from onChange handler
+    // Previous code: this.setState({ title: value.trim() })
+    // Problem: Trimming on every keystroke prevents users from typing leading/trailing spaces
+    // Example: User cannot type "  My Title" because spaces are removed immediately
+    // Solution: Store the raw value and trim only when saving
     this.setState({
       title: value
     });
@@ -36,17 +38,22 @@ export default class AddTutorial extends Component {
   }
 
   saveTutorial() {
-    // Validate and trim title before saving
+    // FIX #7: Trim is now applied here at save time, not during typing
+    // This provides better UX while still ensuring clean data is sent to the API
     const trimmedTitle = this.state.title.trim();
+    const trimmedDescription = this.state.description.trim();
     
+    // Basic validation
     if (!trimmedTitle) {
       console.error("Title is required");
+      alert("Please enter a title");
       return;
     }
 
     var data = {
       title: trimmedTitle,
-      description: this.state.description.trim()
+      description: trimmedDescription,
+      published: false
     };
 
     TutorialDataService.create(data)
@@ -62,6 +69,7 @@ export default class AddTutorial extends Component {
       })
       .catch(e => {
         console.log(e);
+        alert("Error creating tutorial. Please try again.");
       });
   }
 

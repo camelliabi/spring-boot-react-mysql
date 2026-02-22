@@ -56,6 +56,8 @@ export default class TutorialsList extends Component {
   setActiveTutorial(tutorial, index) {
     // FIX #4: Removed '+ 1' to fix off-by-one error in selection highlighting
     // Arrays are zero-indexed, so currentIndex should match the array index directly
+    // Previous code: currentIndex: index + 1 caused wrong tutorial to be highlighted
+    // When user clicked first tutorial (index 0), currentIndex became 1, never matching
     this.setState({
       currentTutorial: tutorial,
       currentIndex: index
@@ -162,7 +164,8 @@ export default class TutorialsList extends Component {
                 <label>
                   <strong>Status:</strong>
                 </label>{" "}
-                {/* FIX #5: Corrected inverted status display logic */}
+                {/* FIX #2: CRITICAL - Corrected inverted status display logic */}
+                {/* Previous: published ? "Pending" : "Published" was completely backwards */}
                 {/* When published is true, show 'Published'; when false, show 'Pending' */}
                 {currentTutorial.published ? "Published" : "Pending"}
               </div>
