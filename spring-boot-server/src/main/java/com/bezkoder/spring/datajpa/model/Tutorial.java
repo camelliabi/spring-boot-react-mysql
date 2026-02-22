@@ -1,7 +1,13 @@
 package com.bezkoder.spring.datajpa.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
+/**
+ * Tutorial entity class
+ * FIX #5: Added validation annotations to enforce business rules
+ */
 @Entity
 @Table(name = "tutorials")
 public class Tutorial {
@@ -10,9 +16,17 @@ public class Tutorial {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
+	// FIX #5: Added @NotBlank to prevent null or empty titles
+	// FIX #5: Added @Size to enforce length constraints (3-100 characters)
+	@NotBlank(message = "Title is required")
+	@Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
 	@Column(name = "title")
 	private String title;
 
+	// FIX #5: Added @NotBlank to prevent null or empty descriptions
+	// FIX #5: Added @Size to enforce length constraints (10-500 characters)
+	@NotBlank(message = "Description is required")
+	@Size(min = 10, max = 500, message = "Description must be between 10 and 500 characters")
 	@Column(name = "description")
 	private String description;
 
