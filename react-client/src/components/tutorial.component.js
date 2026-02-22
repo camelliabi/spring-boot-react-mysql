@@ -130,12 +130,16 @@ class Tutorial extends Component {
             <form>
               <div className="form-group">
                 <label htmlFor="title">Title</label>
+                {/* FIX #6: Removed misleading || "Untitled" default value */}
+                {/* Old code: value={currentTutorial.title || "Untitled"} */}
+                {/* This masked validation issues and created false data representation */}
+                {/* Users couldn't distinguish between intentionally named "Untitled" and missing data */}
+                {/* Now shows actual empty value, allowing proper validation and user awareness */}
                 <input
                   type="text"
                   className="form-control"
                   id="title"
-                
-                  value={currentTutorial.title || "Untitled"}
+                  value={currentTutorial.title}
                   onChange={this.onChangeTitle}
                 />
               </div>
