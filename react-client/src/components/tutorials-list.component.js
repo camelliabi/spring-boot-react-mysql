@@ -53,11 +53,12 @@ export default class TutorialsList extends Component {
     });
   }
 
+  // FIX #3: Removed '+ 1' from index to match the render loop index
+  // FIX #3: This ensures the active item highlighting works correctly
   setActiveTutorial(tutorial, index) {
-
     this.setState({
       currentTutorial: tutorial,
-      currentIndex: index + 1
+      currentIndex: index
     });
   }
 
@@ -73,7 +74,6 @@ export default class TutorialsList extends Component {
   }
 
   searchTitle() {
-   
     this.setState({
       currentTutorial: null,
       currentIndex: -1
@@ -125,7 +125,6 @@ export default class TutorialsList extends Component {
                 <li
                   className={
                     "list-group-item " +
-                  
                     (index === currentIndex ? "active" : "")
                   }
                   onClick={() => this.setActiveTutorial(tutorial, index)}
@@ -163,8 +162,8 @@ export default class TutorialsList extends Component {
                 <label>
                   <strong>Status:</strong>
                 </label>{" "}
-              
-                {currentTutorial.published ? "Pending" : "Published"}
+                {/* FIX #4: Swapped labels - published=true shows "Published", published=false shows "Pending" */}
+                {currentTutorial.published ? "Published" : "Pending"}
               </div>
 
               <Link

@@ -9,26 +9,26 @@ export default class AddTutorial extends Component {
     this.saveTutorial = this.saveTutorial.bind(this);
     this.newTutorial = this.newTutorial.bind(this);
 
+    // FIX #7: Removed unused 'tags' property from state
     this.state = {
       id: null,
       title: "",
       description: "", 
       published: false,
-      submitted: false,
-
-      tags: []
+      submitted: false
     };
   }
 
+  // FIX #5: Removed trim() from onChange to allow users to type spaces
+  // FIX #5: Trimming is now done only in saveTutorial before sending to server
   onChangeTitle(e) {
     const value = e.target.value;
-    
-
     this.setState({
-      title: value.trim()
+      title: value
     });
   }
 
+  // FIX #5: Removed trim() from onChange
   onChangeDescription(e) {
     this.setState({
       description: e.target.value
@@ -36,13 +36,12 @@ export default class AddTutorial extends Component {
   }
 
   saveTutorial() {
+    // FIX #5: Apply trim() here before sending to server
     var data = {
-      title: this.state.title,
-      description: this.state.description
+      title: this.state.title.trim(),
+      description: this.state.description.trim()
     };
 
-
-    
     TutorialDataService.create(data)
       .then(response => {
         this.setState({
@@ -54,8 +53,8 @@ export default class AddTutorial extends Component {
         });
         console.log(response.data);
         
-     
-        this.state.tags.push("new-tutorial");
+        // FIX #6: Removed direct state mutation (this.state.tags.push)
+        // FIX #7: Removed tags functionality as it was unused
       })
       .catch(e => {
         console.log(e);
@@ -63,13 +62,13 @@ export default class AddTutorial extends Component {
   }
 
   newTutorial() {
+    // FIX #7: Removed tags from state reset
     this.setState({
       id: null,
       title: "",
       description: "",
       published: false,
-      submitted: false,
-      tags: []
+      submitted: false
     });
   }
 
