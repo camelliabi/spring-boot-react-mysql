@@ -54,10 +54,13 @@ export default class TutorialsList extends Component {
   }
 
   setActiveTutorial(tutorial, index) {
-
+    // FIX #4: CRITICAL BUG - Fixed off-by-one array indexing error
+    // Changed from: currentIndex: index + 1
+    // Arrays are zero-indexed, so we should store the actual index, not index + 1
+    // The previous code caused wrong tutorial selection and potential out-of-bounds errors
     this.setState({
       currentTutorial: tutorial,
-      currentIndex: index + 1
+      currentIndex: index
     });
   }
 
@@ -163,8 +166,11 @@ export default class TutorialsList extends Component {
                 <label>
                   <strong>Status:</strong>
                 </label>{" "}
-              
-                {currentTutorial.published ? "Pending" : "Published"}
+                {/* FIX #5: CRITICAL BUG - Fixed inverted status display logic */}
+                {/* Changed from: {currentTutorial.published ? "Pending" : "Published"} */}
+                {/* When published=true, it should show "Published", not "Pending" */}
+                {/* This was causing user confusion by displaying opposite status */}
+                {currentTutorial.published ? "Published" : "Pending"}
               </div>
 
               <Link
