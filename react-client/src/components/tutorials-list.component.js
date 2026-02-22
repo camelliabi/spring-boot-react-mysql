@@ -56,6 +56,7 @@ export default class TutorialsList extends Component {
   setActiveTutorial(tutorial, index) {
     // FIX #4: Removed '+ 1' to fix off-by-one error in selection highlighting
     // Arrays are zero-indexed, so currentIndex should match the array index directly
+    // Previous code caused active highlighting to never work correctly
     this.setState({
       currentTutorial: tutorial,
       currentIndex: index

@@ -19,13 +19,12 @@ export default class AddTutorial extends Component {
   }
 
   onChangeTitle(e) {
-    const value = e.target.value;
-    
-    // FIX #6: Changed to use trim() only (removes leading/trailing whitespace)
-    // This preserves internal spaces in multi-word titles like "Spring Boot Tutorial"
-    // Previous implementation may have stripped all whitespace incorrectly
+    // FIX #6: Removed aggressive whitespace removal that broke multi-word titles
+    // Previous code: e.target.value.replace(/\s/g, '') stripped ALL spaces
+    // This prevented users from typing titles like "Spring Boot Tutorial"
+    // Now allows natural text input; sanitization happens in saveTutorial() instead
     this.setState({
-      title: value
+      title: e.target.value
     });
   }
 
@@ -36,17 +35,22 @@ export default class AddTutorial extends Component {
   }
 
   saveTutorial() {
-    // Validate and trim title before saving
-    const trimmedTitle = this.state.title.trim();
+    // FIX #6 (continued): Added proper validation and sanitization at save time
+    // trim() removes leading/trailing whitespace
+    // replace(/\s+/g, ' ') normalizes multiple consecutive spaces to single space
+    const sanitizedTitle = this.state.title.trim().replace(/\s+/g, ' ');
+    const sanitizedDescription = this.state.description.trim();
     
-    if (!trimmedTitle) {
+    // Validate that title is not empty after sanitization
+    if (!sanitizedTitle) {
       console.error("Title is required");
+      alert("Please enter a tutorial title");
       return;
     }
 
     var data = {
-      title: trimmedTitle,
-      description: this.state.description.trim()
+      title: sanitizedTitle,
+      description: sanitizedDescription
     };
 
     TutorialDataService.create(data)

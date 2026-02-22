@@ -130,8 +130,9 @@ class Tutorial extends Component {
                   type="text"
                   className="form-control"
                   id="title"
-                  {/* FIX #8: Removed default 'Untitled' value to enforce data quality */}
+                  {/* FIX #7: Removed default 'Untitled' value to enforce data quality */}
                   {/* Empty titles should be handled with proper validation instead of masking with defaults */}
+                  {/* Using empty string fallback maintains controlled input without hiding data issues */}
                   value={currentTutorial.title || ""}
                   onChange={this.onChangeTitle}
                 />

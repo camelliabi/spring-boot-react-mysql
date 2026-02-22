@@ -79,11 +79,10 @@ public class TutorialController {
 			Tutorial _tutorial = tutorialData.get();
 			_tutorial.setTitle(tutorial.getTitle());
 			_tutorial.setDescription(tutorial.getDescription());
-			// FIX #3: Removed redundant boolean comparison (== true)
-			// Simplified to use boolean value directly in conditional
-			if (tutorial.isPublished()) {
-				_tutorial.setPublished(tutorial.isPublished());
-			}
+			// FIX #3: Removed conditional wrapper to allow bidirectional published status updates
+			// Previous code prevented unpublishing tutorials (could only set to true, never false)
+			// Now treats published field consistently with title and description
+			_tutorial.setPublished(tutorial.isPublished());
 			return new ResponseEntity<>(tutorialRepository.save(_tutorial), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
