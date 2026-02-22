@@ -21,9 +21,9 @@ export default class AddTutorial extends Component {
   onChangeTitle(e) {
     const value = e.target.value;
     
-    // FIX #6: Changed to use trim() only (removes leading/trailing whitespace)
+    // FIX #6: Changed to preserve internal spaces in multi-word titles
+    // Only trim() is applied during save, not during typing
     // This preserves internal spaces in multi-word titles like "Spring Boot Tutorial"
-    // Previous implementation may have stripped all whitespace incorrectly
     this.setState({
       title: value
     });
@@ -36,11 +36,12 @@ export default class AddTutorial extends Component {
   }
 
   saveTutorial() {
-    // Validate and trim title before saving
+    // FIX #7: Added validation for empty title before saving
+    // Trim the title and check if it's empty
     const trimmedTitle = this.state.title.trim();
     
     if (!trimmedTitle) {
-      console.error("Title is required");
+      alert("Title cannot be empty");
       return;
     }
 
