@@ -21,9 +21,10 @@ export default class AddTutorial extends Component {
   onChangeTitle(e) {
     const value = e.target.value;
     
-    // FIX #6: Changed to use trim() only (removes leading/trailing whitespace)
-    // This preserves internal spaces in multi-word titles like "Spring Boot Tutorial"
-    // Previous implementation may have stripped all whitespace incorrectly
+    // FIX ERROR-009: Removed trim() from onChange handler
+    // trim() was being called on every keystroke, preventing users from typing leading/trailing spaces
+    // Trimming should only happen during validation before saving, not during input
+    // This allows natural typing behavior (e.g., "  Spring Boot Tutorial  ")
     this.setState({
       title: value
     });
@@ -37,6 +38,7 @@ export default class AddTutorial extends Component {
 
   saveTutorial() {
     // Validate and trim title before saving
+    // This is the correct place to trim - during submission, not during input
     const trimmedTitle = this.state.title.trim();
     
     if (!trimmedTitle) {

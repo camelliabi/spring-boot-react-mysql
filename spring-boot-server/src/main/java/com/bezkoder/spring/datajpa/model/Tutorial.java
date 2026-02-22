@@ -6,8 +6,12 @@ import jakarta.persistence.*;
 @Table(name = "tutorials")
 public class Tutorial {
 
+	// FIX ERROR-016: Changed from GenerationType.AUTO to GenerationType.IDENTITY
+	// AUTO strategy is unpredictable - varies by database vendor
+	// IDENTITY explicitly uses MySQL's AUTO_INCREMENT feature
+	// Ensures consistent ID generation behavior across environments
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
 	@Column(name = "title")
@@ -61,5 +65,4 @@ public class Tutorial {
 	public String toString() {
 		return "Tutorial [id=" + id + ", title=" + title + ", desc=" + description + ", published=" + published + "]";
 	}
-
 }
