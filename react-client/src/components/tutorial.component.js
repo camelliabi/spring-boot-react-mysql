@@ -130,12 +130,17 @@ class Tutorial extends Component {
             <form>
               <div className="form-group">
                 <label htmlFor="title">Title</label>
+                {/* FIX #6: UX IMPROVEMENT - Fixed value vs placeholder misuse */}
+                {/* Changed from: value={currentTutorial.title || "Untitled"} */}
+                {/* Using || "Untitled" in value makes "Untitled" editable text instead of a hint */}
+                {/* Now using proper placeholder attribute for better UX */}
+                {/* Empty string is a valid value and won't cause controlled component warnings */}
                 <input
                   type="text"
                   className="form-control"
                   id="title"
-                
-                  value={currentTutorial.title || "Untitled"}
+                  placeholder="Enter tutorial title"
+                  value={currentTutorial.title || ""}
                   onChange={this.onChangeTitle}
                 />
               </div>
