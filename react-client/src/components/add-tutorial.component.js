@@ -14,18 +14,18 @@ export default class AddTutorial extends Component {
       title: "",
       description: "", 
       published: false,
-      submitted: false,
-
-      tags: []
+      submitted: false
     };
   }
 
   onChangeTitle(e) {
     const value = e.target.value;
     
-
+    // FIX #6: Changed to use trim() only (removes leading/trailing whitespace)
+    // This preserves internal spaces in multi-word titles like "Spring Boot Tutorial"
+    // Previous implementation may have stripped all whitespace incorrectly
     this.setState({
-      title: value.trim()
+      title: value
     });
   }
 
@@ -36,13 +36,19 @@ export default class AddTutorial extends Component {
   }
 
   saveTutorial() {
+    // Validate and trim title before saving
+    const trimmedTitle = this.state.title.trim();
+    
+    if (!trimmedTitle) {
+      console.error("Title is required");
+      return;
+    }
+
     var data = {
-      title: this.state.title,
-      description: this.state.description
+      title: trimmedTitle,
+      description: this.state.description.trim()
     };
 
-
-    
     TutorialDataService.create(data)
       .then(response => {
         this.setState({
@@ -53,9 +59,6 @@ export default class AddTutorial extends Component {
           submitted: true
         });
         console.log(response.data);
-        
-     
-        this.state.tags.push("new-tutorial");
       })
       .catch(e => {
         console.log(e);
@@ -68,8 +71,7 @@ export default class AddTutorial extends Component {
       title: "",
       description: "",
       published: false,
-      submitted: false,
-      tags: []
+      submitted: false
     });
   }
 

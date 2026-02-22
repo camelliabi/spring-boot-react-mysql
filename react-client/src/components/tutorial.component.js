@@ -65,7 +65,6 @@ class Tutorial extends Component {
   }
 
   updatePublished(status) {
-   
     var data = {
       id: this.state.currentTutorial.id,
       title: this.state.currentTutorial.title,
@@ -75,13 +74,11 @@ class Tutorial extends Component {
 
     TutorialDataService.update(this.state.currentTutorial.id, data)
       .then(response => {
-
         this.setState(prevState => ({
           currentTutorial: {
             ...prevState.currentTutorial,
             published: status
           },
- 
           message: "Status updated successfully!"
         }));
         console.log(response.data);
@@ -108,7 +105,6 @@ class Tutorial extends Component {
   }
 
   deleteTutorial() {    
-   
     TutorialDataService.delete(this.state.currentTutorial.id)
       .then(response => {
         console.log(response.data);
@@ -134,8 +130,9 @@ class Tutorial extends Component {
                   type="text"
                   className="form-control"
                   id="title"
-                
-                  value={currentTutorial.title || "Untitled"}
+                  {/* FIX #8: Removed default 'Untitled' value to enforce data quality */}
+                  {/* Empty titles should be handled with proper validation instead of masking with defaults */}
+                  value={currentTutorial.title || ""}
                   onChange={this.onChangeTitle}
                 />
               </div>
@@ -145,7 +142,7 @@ class Tutorial extends Component {
                   type="text"
                   className="form-control"
                   id="description"
-                  value={currentTutorial.description}
+                  value={currentTutorial.description || ""}
                   onChange={this.onChangeDescription}
                 />
               </div>
