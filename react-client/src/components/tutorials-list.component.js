@@ -54,7 +54,7 @@ export default class TutorialsList extends Component {
   }
 
   setActiveTutorial(tutorial, index) {
-    // FIX #4: Removed '+ 1' to fix off-by-one error in selection highlighting
+    // FIX #4: Removed '+1' to fix off-by-one error in selection highlighting
     // Arrays are zero-indexed, so currentIndex should match the array index directly
     this.setState({
       currentTutorial: tutorial,
@@ -128,7 +128,7 @@ export default class TutorialsList extends Component {
                     (index === currentIndex ? "active" : "")
                   }
                   onClick={() => this.setActiveTutorial(tutorial, index)}
-                  key={index}
+                  key={tutorial.id}
                 >
                   {tutorial.title}
                 </li>
